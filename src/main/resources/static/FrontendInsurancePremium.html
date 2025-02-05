@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versicherungsprämienrechner</title>
+</head>
+<body>
+<h2>Bitte geben Sie hier Ihre Daten ein</h2>
+
+<form action="calculate.php" method="POST">
+    <label for="region">Region wählen:</label>
+    <select id="region" name="region">
+        <!-- Optionen werden per JavaScript eingefügt -->
+    </select>
+
+    <label for="vehicle">Fahrzeugtyp wählen:</label>
+    <select id="vehicle" name="vehicle">
+        <!-- Optionen werden per JavaScript eingefügt -->
+    </select>
+
+    <label for="kilometers">Jährliche Kilometerzahl:</label>
+    <input type="number" id="kilometers" name="kilometers" required>
+
+    <button type="submit">OK</button>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("get_data.php?type=regions")
+            .then(response => response.json())
+            .then(data => {
+                let regionSelect = document.getElementById("region");
+                data.forEach(region => {
+                    let option = document.createElement("option");
+                    option.value = region.name;
+                    option.textContent = region.name;
+                    regionSelect.appendChild(option);
+                });
+            });
+
+        fetch("get_data.php?type=vehicles")
+            .then(response => response.json())
+            .then(data => {
+                let vehicleSelect = document.getElementById("vehicle");
+                data.forEach(vehicle => {
+                    let option = document.createElement("option");
+                    option.value = vehicle.name;
+                    option.textContent = vehicle.name;
+                    vehicleSelect.appendChild(option);
+                });
+            });
+    });
+</script>
+</body>
+</html>

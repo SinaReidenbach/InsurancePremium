@@ -1,0 +1,9 @@
+03.02.2025
+Projekt einrichten:
+Spring Initializr 
+Folgende Abhängigkeiten gewählt:
+Spring Web (für REST-API)
+Spring Boot DevTools (für schnellere Entwicklung)
+Spring Data JPA (für die Datenbank)
+H2 Database (falls du eine einfache In-Memory-Datenbank nutzen willst)
+Lombok (vereinfacht Code durch automatische Getter/Setter)
