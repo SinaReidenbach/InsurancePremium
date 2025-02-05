@@ -15,7 +15,7 @@ import java.util.List;
 public class InsurancePremiumService {
 
     @Autowired
-    private AnnoKilometersRepository annoKilometersRepository;
+    private final AnnoKilometersRepository annoKilometersRepository;
 
     @Autowired
     private VehicleRepository vehicleRepository;
@@ -23,10 +23,14 @@ public class InsurancePremiumService {
     @Autowired
     private RegionRepository regionRepository;
 
+    public InsurancePremiumService(AnnoKilometersRepository annoKilometersRepository) {
+        this.annoKilometersRepository = annoKilometersRepository;
+    }
+
     // Diese Methode gibt den Kilometer-Faktor basierend auf der jährlichen Kilometerzahl zurück
     public double getKilometerFactor(int kilometers) {
-        // Suche nach den passenden km-Bereichen
-        List<AnnoKilometers> ranges = annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(kilometers);
+        // Suche nach den passenden km-Bereichen, die die Kilometeranzahl abdecken
+        List<AnnoKilometers> ranges = annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(kilometers, kilometers);
 
         // Wenn eine passende Zeile gefunden wurde, gib den Factor zurück
         if (!ranges.isEmpty()) {
