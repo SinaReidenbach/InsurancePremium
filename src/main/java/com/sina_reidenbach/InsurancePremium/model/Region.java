@@ -2,27 +2,35 @@ package com.sina_reidenbach.InsurancePremium.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+
 @Entity
 public class Region {
-
     @Id
-    private String regionName;  // Name der Region (z.B. "Berlin", "Hamburg", "München")
-    private double regionFactor;  // Faktor für die Region
+    private int regionId;
+    private String postcode;
+    private String regionName;
+    private double regionFactor;
 
-    // Getter und Setter
-    public String getRegionName() {
-        return regionName;
+    // **Standard-Konstruktor erforderlich für JPA**
+    public Region() {
     }
 
-    public void setRegionName(String regionName) {
+    // Dein bestehender Konstruktor
+    public Region(String postcode, String regionName) {
+        this.postcode = postcode;
         this.regionName = regionName;
+    }
+
+    // Getter und Setter
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public String getRegion() {
+        return regionName;
     }
 
     public double getRegionFactor() {
         return regionFactor;
-    }
-
-    public void setRegionFactor(double regionFactor) {
-        this.regionFactor = regionFactor;
     }
 }

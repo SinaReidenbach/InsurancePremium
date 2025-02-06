@@ -12,19 +12,8 @@ public class Vehicle {
     private double vehicleFactor;  // Faktor für den Fahrzeugtyp
 
     // Getter und Setter
-    public String getVehicleName() {
-        return vehicleName;
-    }
-
-    public void setVehicleName(String vehicleName) {
-        this.vehicleName = vehicleName;
-    }
 
     public double getVehicleFactor() {
         return vehicleFactor;
-    }
-
-    public void setVehicleFactor(double vehicleFactor) {
-        this.vehicleFactor = vehicleFactor;
     }
 }

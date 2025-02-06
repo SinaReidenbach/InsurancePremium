@@ -1,4 +1,4 @@
-package com.sina_reidenbach.InsurancePremium;
+package com.sina_reidenbach.InsurancePremium.service;
 
 import com.sina_reidenbach.InsurancePremium.model.AnnoKilometers;
 import com.sina_reidenbach.InsurancePremium.model.Region;
@@ -12,18 +12,20 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class InsurancePremiumService {
+public class FactorService {
 
     @Autowired
     private final AnnoKilometersRepository annoKilometersRepository;
 
     @Autowired
     private VehicleRepository vehicleRepository;
+    @Autowired
+    private PostcodeService postcodeService;
 
     @Autowired
     private RegionRepository regionRepository;
 
-    public InsurancePremiumService(AnnoKilometersRepository annoKilometersRepository) {
+    public FactorService(AnnoKilometersRepository annoKilometersRepository) {
         this.annoKilometersRepository = annoKilometersRepository;
     }
 
@@ -51,14 +53,19 @@ public class InsurancePremiumService {
         return 1.0;  // Standardfaktor für unbekannte Fahrzeugtypen
     }
 
+    public double getRegionFactorByPostcode(String postcode) {
+        String regionName = postcodeService.getRegionByPostcode(postcode);
+        return getRegionFactor(regionName);
+    }
+
     // Diese Methode gibt den Region-Faktor basierend auf dem Regionennamen zurück
     public double getRegionFactor(String regionName) {
-        // Holen der Region aus der DB
-        Region region = regionRepository.findByRegionName(regionName);
-        if (region != null) {
-            return region.getRegionFactor();
+        if (regionName == null || regionName.equals("Region nicht gefunden")) {
+            return 1.0;  // Standardfaktor, wenn die Region nicht existiert
         }
-        return 1.0;  // Standardfaktor für unbekannte Regionen
+
+        Region region = regionRepository.findByRegionName(regionName);
+        return (region != null) ? region.getRegionFactor() : 1.0;
     }
 
     // Berechnung der Versicherungsprämie unter Berücksichtigung der Eingaben
