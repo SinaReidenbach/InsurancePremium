@@ -31,6 +31,9 @@ public class CalculateService {
         System.out.println("Gesamtfaktor: " + f1 * f2 * f3);
         System.out.println("Berechnete Prämie auf Basiswert von " + basis + "€: " + f1 * f2 * f3 * basis);
 
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println(factorService.getKilometerFactor(7500));
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         //Eingabeoberfläche
         //Speichern der eingaben in der datenbank anonymisiert
         //HTML-API für Drittanbieter

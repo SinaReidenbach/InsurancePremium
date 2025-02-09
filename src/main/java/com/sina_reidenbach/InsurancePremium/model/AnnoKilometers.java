@@ -14,9 +14,32 @@ public class AnnoKilometers {
     private int kmMax;      // Maximal-Kilometerstand
     private double kmFactor;   // Faktor
 
+    public AnnoKilometers(int kmMin, int kmMax, double kmFactor) {
+        this.kmMin = kmMin;
+        this.kmMax = kmMax;
+        this.kmFactor = kmFactor;
+    }
+
+    public AnnoKilometers() {}
+
     // Getter und Setter
     public double getKmFactor() {
         return kmFactor;
     }
+    public int getKmMin() {
+        return kmMin;
+    }
 
+    public void setKmMin(int i) {
+    }
+
+    public int getKmMax() {
+        return kmMax;
+    }
+
+    public void setKmMax(int i) {
+    }
+
+    public void setKmFactor(double v) {
+    }
 }

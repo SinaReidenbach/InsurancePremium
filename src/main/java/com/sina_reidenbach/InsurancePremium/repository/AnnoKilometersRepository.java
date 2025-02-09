@@ -1,7 +1,6 @@
 package com.sina_reidenbach.InsurancePremium.repository;
 
 import com.sina_reidenbach.InsurancePremium.model.AnnoKilometers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

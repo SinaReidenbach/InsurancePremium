@@ -18,15 +18,18 @@ public class FactorService {
     private final AnnoKilometersRepository annoKilometersRepository;
 
     @Autowired
-    private VehicleRepository vehicleRepository;
+    private final VehicleRepository vehicleRepository;
     @Autowired
-    private PostcodeService postcodeService;
+    private final PostcodeService postcodeService;
 
     @Autowired
-    private RegionRepository regionRepository;
+    private final RegionRepository regionRepository;
 
-    public FactorService(AnnoKilometersRepository annoKilometersRepository) {
+    public FactorService(AnnoKilometersRepository annoKilometersRepository, VehicleRepository vehicleRepository, PostcodeService postcodeService, RegionRepository regionRepository) {
         this.annoKilometersRepository = annoKilometersRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.postcodeService = postcodeService;
+        this.regionRepository = regionRepository;
     }
 
     // Diese Methode gibt den Kilometer-Faktor basierend auf der jährlichen Kilometerzahl zurück

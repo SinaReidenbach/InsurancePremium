@@ -33,4 +33,8 @@ public class Region {
     public double getRegionFactor() {
         return regionFactor;
     }
+
+    public void setRegionFactor(double regionFactor) {
+        this.regionFactor = regionFactor;
+    }
 }
