@@ -29,6 +29,11 @@
             <option th:each="v : ${fahrzeugListe}" th:value="${v.vehicleId}" th:text="${v.vehicleName}"></option>
         </select>
 
+        <label>
+            <input type="checkbox" name="dataConsent" required>
+            Ich stimme der Speicherung meiner IP-Adresse zu, um die Berechnungen und statistische Auswertungen zu ermöglichen.
+        </label>
+
 
         <button type="submit">Berechnen</button>
     </form>

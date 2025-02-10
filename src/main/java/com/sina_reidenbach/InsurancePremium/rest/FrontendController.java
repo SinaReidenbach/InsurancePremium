@@ -8,6 +8,7 @@ import com.sina_reidenbach.InsurancePremium.repository.RegionRepository;
 import com.sina_reidenbach.InsurancePremium.repository.VehicleRepository;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
 import com.sina_reidenbach.InsurancePremium.service.PostcodeService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,7 @@ public class FrontendController {
     public String berechnen(@RequestParam int km,
                             @RequestParam String postcode,
                             @RequestParam int vehicle,
+                            HttpServletRequest request,
                             Model model) {
 
         // Hole das Fahrzeug-Objekt aus der Datenbank anhand der ID
@@ -57,7 +59,15 @@ public class FrontendController {
         // Speichern des Fahrzeugnamens (anstatt der ID) in der Statistik-Tabelle
         String vehicleName = selectedVehicle.getVehicleName();
         double premium = calculateService.calculatePremium(km, postcode, String.valueOf(vehicle));
-        statisticsService.saveStatistics(now, postcode, vehicleName, km, premium);
+        // IP-Adresse aus dem Request-Header extrahieren
+        String ipAddress = request.getRemoteAddr();
+
+        // Falls die IP hinter einem Proxy ist, die "X-Forwarded-For"-Header prüfen
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isEmpty()) {
+            ipAddress = forwardedFor.split(",")[0]; // Nimmt die erste IP aus der Liste
+        }
+        statisticsService.saveStatistics(now, postcode, vehicleName, km, premium, ipAddress);
 
 
         // Region anhand der Postleitzahl holen

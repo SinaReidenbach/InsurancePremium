@@ -17,17 +17,19 @@ public class Statistics {
     private String vehicle;     // Fahrzeugname
     private int annokilometers; // Jährliche Kilometer
     private double premium;
+    private String ipAddress;
 
     // Standard-Konstruktor
     public Statistics() {
     }
 
-    public Statistics(LocalDateTime dateTime, String postcode, String vehicle, int annokilometers, double premium) {
+    public Statistics(LocalDateTime dateTime, String postcode, String vehicle, int annokilometers, double premium, String ipAddress) {
         this.dateTime = dateTime;
         this.postcode = postcode;
         this.vehicle = vehicle;
         this.annokilometers = annokilometers;
         this.premium = premium;
+        this.ipAddress = ipAddress;
     }
 
     // Getter und Setter
@@ -77,5 +79,12 @@ public class Statistics {
 
     public void setPremium(double premium) {
         this.premium = premium;
+    }
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 }

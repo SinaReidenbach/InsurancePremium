@@ -12,8 +12,8 @@ public class StatisticsService {
     @Autowired
     private StatisticsRepository statisticsRepository;
 
-    public void saveStatistics(LocalDateTime dateTime, String postcode, String vehicleName, int km,double premium) {
-        Statistics entity = new Statistics(dateTime, postcode, vehicleName, km,premium);
+    public void saveStatistics(LocalDateTime dateTime, String postcode, String vehicleName, int km,double premium, String ipAddress) {
+        Statistics entity = new Statistics(dateTime, postcode, vehicleName, km,premium, ipAddress);
         statisticsRepository.save(entity);
     }
 
