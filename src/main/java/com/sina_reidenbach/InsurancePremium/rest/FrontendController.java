@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.util.stream.Collectors;
+import com.sina_reidenbach.InsurancePremium.service.StatisticsService;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 import java.util.List;
@@ -29,22 +32,47 @@ public class FrontendController {
     private VehicleRepository vehicleRepository;
     @Autowired
     private PostcodeService postcodeService; // Hinzufügen des Services
+    @Autowired
+    private StatisticsService statisticsService;
 
     @PostMapping("/berechnen")
     public String berechnen(@RequestParam int km,
                             @RequestParam String postcode,
-                            @RequestParam String vehicle,
+                            @RequestParam int vehicle,
                             Model model) {
+
+        // Hole das Fahrzeug-Objekt aus der Datenbank anhand der ID
+        Vehicle selectedVehicle = vehicleRepository.findById(vehicle).orElse(null);
+
+        // Wenn das Fahrzeug nicht gefunden wurde, kann eine Fehlerbehandlung erfolgen
+        if (selectedVehicle == null) {
+            model.addAttribute("error", "Fahrzeug nicht gefunden!");
+            return "index";
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("Aktuelles Datum und Uhrzeit: " + now);
+
+
+        // Speichern des Fahrzeugnamens (anstatt der ID) in der Statistik-Tabelle
+        String vehicleName = selectedVehicle.getVehicleName();
+        double premium = calculateService.calculatePremium(km, postcode, String.valueOf(vehicle));
+        statisticsService.saveStatistics(now, postcode, vehicleName, km, premium);
+
+
         // Region anhand der Postleitzahl holen
         String regionName = postcodeService.getRegionByPostcode(postcode);
 
-        // Prämie berechnen
-        double premium = calculateService.calculatePremium(km, postcode, vehicle);
+
+        List<Vehicle> fahrzeugListe = vehicleRepository.findAll();
+
+        // Alphabetische Sortierung der Fahrzeugliste nach Fahrzeugname
+        Collections.sort(fahrzeugListe, Comparator.comparing(Vehicle::getVehicleName));
 
         // Werte ins Model packen
         model.addAttribute("premium", String.format("%.2f", premium) + " €"); // Formatierung mit zwei Nachkommastellen
         model.addAttribute("region", regionName);
-        model.addAttribute("fahrzeugListe", vehicleRepository.findAll());
+        model.addAttribute("fahrzeugListe", fahrzeugListe);
 
         return "index";
     }

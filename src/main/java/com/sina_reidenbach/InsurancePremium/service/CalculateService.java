@@ -12,6 +12,7 @@ public class CalculateService {
     String postcode = "79189";
     String vehicleName = "SUV";
     int basis = 500;
+    double premium=0;
 
     public CalculateService(FactorService insurancePremiumService, JdbcTemplate jdbcTemplate, PostcodeService postcodeService) {
 
@@ -29,9 +30,18 @@ public class CalculateService {
         System.err.println("Alle Faktoren gespeichert.");
         System.err.println("F1: " + f1 + " / F2: " + f2 + " / F3: " + f3);
         System.err.println("Gesamtfaktor: " + f1*f2*f3);
-        double premium = f1 * f2 * f3 * basis;
+        premium = f1 * f2 * f3 * basis;
         System.err.println("Berechnete Prämie: " + premium);
 
         return premium;
     }
 }
+        //Speichern der eingaben in der datenbank anonymisiert
+        //HTML-API für Drittanbieter
+        //Frontend zur Eingabe der parameter
+
+        /*„Ich stimme der Speicherung meiner IP-Adresse zu,
+        um die Berechnungen zu ermöglichen und die Nutzung zu
+        statistischen Zwecken zu unterstützen.
+        Weitere Informationen finden Sie in der Datenschutzerklärung.“
+         */

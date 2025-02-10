@@ -27,8 +27,8 @@
         <select id="vehicle" name="vehicle" required>
             <option value="">-- Bitte wählen --</option>
             <option th:each="v : ${fahrzeugListe}" th:value="${v.vehicleId}" th:text="${v.vehicleName}"></option>
-
         </select>
+
 
         <button type="submit">Berechnen</button>
     </form>
