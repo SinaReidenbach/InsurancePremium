@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versicherungsprämie Berechnung</title>
+    <link rel="stylesheet" th:href="@{/CSS/styles.css}" />
+
+</head>
+<body>
+<!-- Container für Überschrift -->
+<div class="headline">
+    <h1>Hier können Sie Ihre Versicherungsprämie berechnen</h1>
+</div>
+
+<!-- Container für Eingabeformular -->
+<div class="input-form">
+    <form action="/berechnen" method="POST">
+        <label for="km">Jährliche Kilometerleistung:</label>
+        <input type="number" id="km" name="km" placeholder="Jährliche Kilometerleistung" required>
+
+        <label for="postcode">Postleitzahl:</label>
+        <input type="text" id="postcode" name="postcode" placeholder="Postleitzahl der Zulassungsstelle" required>
+
+        <label for="vehicle">Fahrzeugtyp:</label>
+        <select id="vehicle" name="vehicle" required>
+            <option value="">-- Bitte wählen --</option>
+            <option th:each="v : ${fahrzeugListe}" th:value="${v.vehicleId}" th:text="${v.vehicleName}"></option>
+
+        </select>
+
+        <button type="submit">Berechnen</button>
+    </form>
+
+    <h2>Berechnete Prämie: <span th:text="${premium}">300,00</span> €</h2>
+</div>
+<div class="footer">
+    <p></p>
+</div>
+
+</body>
+</html>

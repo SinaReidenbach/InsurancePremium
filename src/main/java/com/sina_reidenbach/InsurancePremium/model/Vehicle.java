@@ -3,6 +3,8 @@ package com.sina_reidenbach.InsurancePremium.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+import java.util.List;
+
 @Entity
 public class Vehicle {
 
@@ -33,4 +35,12 @@ public class Vehicle {
     }
 
     public String getVehicleName()  { return vehicleName; }
+
+    public int getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(int vehicleId) {
+        this.vehicleId = vehicleId;
+    }
 }

@@ -20,6 +20,6 @@ class RegionRepositoryTest {
     @Test
     void testFindByRegionName() {
         assertNotNull(region);
-        assertEquals("Baden-Württemberg", region.getRegion());
+        assertEquals("Baden-Württemberg", region.getRegionName());
     }
 }

@@ -22,12 +22,21 @@ public class Region {
     }
 
     // Getter und Setter
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode;
+    }
+
     public String getPostcode() {
         return postcode;
     }
 
-    public String getRegion() {
+    public String getRegionName() {
         return regionName;
+    }
+
+    public void setRegionName(String regionName) {
+        this.regionName = regionName;
     }
 
     public double getRegionFactor() {
@@ -37,4 +46,9 @@ public class Region {
     public void setRegionFactor(double regionFactor) {
         this.regionFactor = regionFactor;
     }
+
+    public int getRegionId() { return regionId; }
+    public void setRegionId(int regionId) { this.regionId = regionId; }
+
+
 }

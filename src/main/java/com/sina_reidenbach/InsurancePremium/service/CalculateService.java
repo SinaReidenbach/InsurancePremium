@@ -19,24 +19,19 @@ public class CalculateService {
         this.postcodeService = postcodeService;
     }
 
-    public void test() {
+    public double calculatePremium(int km, String postcode, String vehicleName) {
+        String regionName = postcodeService.getRegionByPostcode(postcode);
 
-        regionName = postcodeService.getRegionByPostcode(postcode);
+        double f1 = factorService.getKilometerFactor(km);
+        double f2 = factorService.getRegionFactorByPostcode(postcode);
+        double f3 = factorService.getVehicleFactor(vehicleName);
 
-        double f1= factorService.getKilometerFactor(km);
-        double f2= factorService.getRegionFactorByPostcode(postcode);
-        double f3= factorService.getVehicleFactor(vehicleName);
+        System.err.println("Alle Faktoren gespeichert.");
+        System.err.println("F1: " + f1 + " / F2: " + f2 + " / F3: " + f3);
+        System.err.println("Gesamtfaktor: " + f1*f2*f3);
+        double premium = f1 * f2 * f3 * basis;
+        System.err.println("Berechnete Prämie: " + premium);
 
-        System.out.println("F1 ("+km+"km):" + f1 + " / F2 (" + postcode + " = " + regionName + "):" + f2 + " / F3 (" + vehicleName+"):" + f3);
-        System.out.println("Gesamtfaktor: " + f1 * f2 * f3);
-        System.out.println("Berechnete Prämie auf Basiswert von " + basis + "€: " + f1 * f2 * f3 * basis);
-
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        System.out.println(factorService.getKilometerFactor(7500));
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        //Eingabeoberfläche
-        //Speichern der eingaben in der datenbank anonymisiert
-        //HTML-API für Drittanbieter
-        //Frontend zur Eingabe der parameter
+        return premium;
     }
 }

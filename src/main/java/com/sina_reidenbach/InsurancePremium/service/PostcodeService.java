@@ -25,6 +25,8 @@ public class PostcodeService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()));
 
+            System.err.println("Postcodes geladen: " + postcodes.size());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,7 +45,7 @@ public class PostcodeService {
     public String getRegionByPostcode(String postcode) {
         return postcodes.stream()
                 .filter(loc -> loc.getPostcode().equals(postcode))
-                .map(Region::getRegion)
+                .map(Region::getRegionName)
                 .findFirst()
                 .orElse("Region nicht gefunden");
     }

@@ -16,9 +16,4 @@ public class InsurancePremiumApplication {
 		SpringApplication.run(InsurancePremiumApplication.class, args);
 	}
 
-	// Diese Methode wird nach dem Starten der Spring Boot-Anwendung ausgeführt
-	@PostConstruct
-	public void runTestAfterStartup() {
-		insurancePremiumCalculate.test();
-	}
 }
