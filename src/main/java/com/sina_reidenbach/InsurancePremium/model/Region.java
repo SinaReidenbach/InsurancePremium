@@ -17,10 +17,7 @@ public class Region {
 
 
     //Konstruktor
-    public Region(String name, String postcodeValue) {
-        this.name = name;
-        this.postcodeValue = postcodeValue;
-    }
+    public Region() {}
 
     // Getter und Setter
     public Long getId() {

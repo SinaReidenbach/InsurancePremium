@@ -25,8 +25,6 @@ public class PostcodeService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()));
 
-            System.err.println("Postcodes geladen: " + postcodes.size());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -37,9 +35,10 @@ public class PostcodeService {
         if (fields.length < 7) {
             return null;
         }
-        String postcodeValue = fields[6].replace("\"", "").trim(); // PLZ (POSTLEITZAHL)
-        String regionName = fields[2].replace("\"", "").trim(); // REGION1 (z. B. "Baden-Württemberg")
-        return new Region(regionName, postcodeValue);
+        String postcodeValue = fields[6].replace("\"", "").trim();
+        String regionName = fields[2].replace("\"", "").trim();
+
+        return new Region();
     }
 
     public String getRegionByPostcode(String postcode) {

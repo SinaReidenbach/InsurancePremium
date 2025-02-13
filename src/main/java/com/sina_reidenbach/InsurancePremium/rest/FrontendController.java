@@ -2,8 +2,11 @@ package com.sina_reidenbach.InsurancePremium.rest;
 
 import java.util.Collections;
 import java.util.Comparator;
+
+import com.sina_reidenbach.InsurancePremium.model.Postcode;
 import com.sina_reidenbach.InsurancePremium.model.Region;
 import com.sina_reidenbach.InsurancePremium.model.Vehicle;
+import com.sina_reidenbach.InsurancePremium.repository.PostcodeRepository;
 import com.sina_reidenbach.InsurancePremium.repository.RegionRepository;
 import com.sina_reidenbach.InsurancePremium.repository.VehicleRepository;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
@@ -29,6 +32,8 @@ public class FrontendController {
     @Autowired
     private RegionRepository regionRepository;
     @Autowired
+    private PostcodeRepository postcodeRepository;
+    @Autowired
     private VehicleRepository vehicleRepository;
     @Autowired
     private PostcodeService postcodeService; // Hinzufügen des Services
@@ -37,19 +42,19 @@ public class FrontendController {
 
     @PostMapping("/berechnen")
     public String berechnen(@RequestParam int km,
-                            @RequestParam String postcode,
+                            @RequestParam String postcodeValue,
                             @RequestParam Long vehicle,
                             HttpServletRequest request,
                             Model model) {
 
+
+        // Hole das Region-Objekt aus der Datenbank anhand der Postleitzahl
+        Region selectedRegion = regionRepository.findByPostcodeValue(postcodeValue);
+        String regionName = selectedRegion.getName();
+
         // Hole das Fahrzeug-Objekt aus der Datenbank anhand der ID
         Vehicle selectedVehicle = vehicleRepository.findById(vehicle).orElse(null);
 
-        // Wenn das Fahrzeug nicht gefunden wurde, kann eine Fehlerbehandlung erfolgen
-        if (selectedVehicle == null) {
-            model.addAttribute("error", "Fahrzeug nicht gefunden!");
-            return "index";
-        }
 
         LocalDateTime now = LocalDateTime.now();
         System.out.println("Aktuelles Datum und Uhrzeit: " + now);
@@ -57,7 +62,7 @@ public class FrontendController {
 
         // Speichern des Fahrzeugnamens (anstatt der ID) in der Statistik-Tabelle
         String vehicleName = selectedVehicle.getName();
-        double premium = calculateService.calculatePremium(km, postcode, String.valueOf(vehicle));
+        double premium = calculateService.calculatePremium(km, postcodeValue, String.valueOf(vehicle));
         // IP-Adresse aus dem Request-Header extrahieren
         String ipAddress = request.getRemoteAddr();
 
@@ -66,11 +71,8 @@ public class FrontendController {
         if (forwardedFor != null && !forwardedFor.isEmpty()) {
             ipAddress = forwardedFor.split(",")[0]; // Nimmt die erste IP aus der Liste
         }
-        statisticsService.saveStatistics(now, postcode, vehicleName, km, premium, ipAddress);
+        statisticsService.saveStatistics(now, postcodeValue, vehicleName, km, premium, ipAddress);
 
-
-        // Region anhand der Postleitzahl holen
-        String regionName = postcodeService.getRegionByPostcode(postcode);
 
 
         List<Vehicle> fahrzeugListe = vehicleRepository.findAll();
@@ -91,24 +93,21 @@ public class FrontendController {
 
     @GetMapping("/")
     public String showHomePage(Model model) {
-        // Hole alle Regionen (mit PLZ) aus der Datenbank
-        List<Region> plzListe = regionRepository.findAll();
+        // Hole alle Postcode Objekte aus der Datenbank
+        List<Postcode> postcodeList = postcodeRepository.findAll();
 
-        // Extrahiere nur die Postleitzahlen aus den Regionen
-        List<String> postcodeList = plzListe.stream()
-                .map(Region::getPostcodeValue) // Nur die PLZ
-                .collect(Collectors.toList());
-
-        List<Vehicle> fahrzeugListe = vehicleRepository.findAll();
+        List<Vehicle> vehicleList = vehicleRepository.findAll();
 
         // Alphabetische Sortierung der Fahrzeugliste nach Fahrzeugname
-        Collections.sort(fahrzeugListe, Comparator.comparing(Vehicle::getName));
+        Collections.sort(vehicleList, Comparator.comparing(Vehicle::getName));
+
+        // Alphabetische Sortierung der PostcodeListe nach Fahrzeugname
+        Collections.sort(postcodeList, Comparator.comparing(Postcode::getPostcodeValue));
 
 
-        System.err.println("PLZ Liste Größe: " + plzListe.size());
         // Übergabe der PLZ-Liste an das Template
         model.addAttribute("postcodeList", postcodeList);
-        model.addAttribute("fahrzeugListe", fahrzeugListe);
+        model.addAttribute("vehicleList", vehicleList);
 
         return "index"; // Name der HTML-Datei in /templates/
     }

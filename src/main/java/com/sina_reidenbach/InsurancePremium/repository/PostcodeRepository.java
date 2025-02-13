@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostcodeRepository extends JpaRepository<Postcode, Long> {
-    @Query("SELECT p.region FROM Postcode p WHERE p.postcodeValue = :postcodeValue AND p.region = :region")
-    Region findByPostcodeValueAndRegion(@Param("postcodeValue") String postcodeValue, @Param("region") Region region);
+    Postcode findByPostcodeValue(String postcodeValue);
 }
