@@ -21,6 +21,7 @@ public class CalculateService {
     }
 
     public double calculatePremium(int km, String postcode, String vehicleName) {
+
         String regionName = postcodeService.getRegionByPostcode(postcode);
 
         double f1 = factorService.getKilometerFactor(km);
