@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.stream.Collectors;
 import com.sina_reidenbach.InsurancePremium.service.StatisticsService;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class FrontendController {
     @PostMapping("/berechnen")
     public String berechnen(@RequestParam int km,
                             @RequestParam String postcode,
-                            @RequestParam int vehicle,
+                            @RequestParam Long vehicle,
                             HttpServletRequest request,
                             Model model) {
 
@@ -57,7 +56,7 @@ public class FrontendController {
 
 
         // Speichern des Fahrzeugnamens (anstatt der ID) in der Statistik-Tabelle
-        String vehicleName = selectedVehicle.getVehicleName();
+        String vehicleName = selectedVehicle.getName();
         double premium = calculateService.calculatePremium(km, postcode, String.valueOf(vehicle));
         // IP-Adresse aus dem Request-Header extrahieren
         String ipAddress = request.getRemoteAddr();
@@ -77,7 +76,7 @@ public class FrontendController {
         List<Vehicle> fahrzeugListe = vehicleRepository.findAll();
 
         // Alphabetische Sortierung der Fahrzeugliste nach Fahrzeugname
-        Collections.sort(fahrzeugListe, Comparator.comparing(Vehicle::getVehicleName));
+        Collections.sort(fahrzeugListe, Comparator.comparing(Vehicle::getName));
 
         // Werte ins Model packen
         model.addAttribute("premium", String.format("%.2f", premium) + " €"); // Formatierung mit zwei Nachkommastellen
@@ -97,13 +96,13 @@ public class FrontendController {
 
         // Extrahiere nur die Postleitzahlen aus den Regionen
         List<String> postcodeList = plzListe.stream()
-                .map(Region::getPostcode) // Nur die PLZ
+                .map(Region::getPostcodeValue) // Nur die PLZ
                 .collect(Collectors.toList());
 
         List<Vehicle> fahrzeugListe = vehicleRepository.findAll();
 
         // Alphabetische Sortierung der Fahrzeugliste nach Fahrzeugname
-        Collections.sort(fahrzeugListe, Comparator.comparing(Vehicle::getVehicleName));
+        Collections.sort(fahrzeugListe, Comparator.comparing(Vehicle::getName));
 
 
         System.err.println("PLZ Liste Größe: " + plzListe.size());

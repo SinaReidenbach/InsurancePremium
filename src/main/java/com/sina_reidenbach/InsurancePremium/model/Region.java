@@ -1,54 +1,65 @@
 package com.sina_reidenbach.InsurancePremium.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Region {
     @Id
-    private int regionId;
-    private String postcode;
-    private String regionName;
-    private double regionFactor;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private double factor;
+    private String postcodeValue;
 
-    // **Standard-Konstruktor erforderlich für JPA**
-    public Region() {
-    }
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<City> cities;
 
-    // Dein bestehender Konstruktor
-    public Region(String postcode, String regionName) {
-        this.postcode = postcode;
-        this.regionName = regionName;
+
+    //Konstruktor
+    public Region(String name, String postcodeValue) {
+        this.name = name;
+        this.postcodeValue = postcodeValue;
     }
 
     // Getter und Setter
-
-    public void setPostcode(String postcode) {
-        this.postcode = postcode;
+    public Long getId() {
+        return id;
     }
 
-    public String getPostcode() {
-        return postcode;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getRegionName() {
-        return regionName;
+    public String getName() {
+        return name;
     }
 
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public double getRegionFactor() {
-        return regionFactor;
+    public double getFactor() {
+        return factor;
     }
 
-    public void setRegionFactor(double regionFactor) {
-        this.regionFactor = regionFactor;
+    public void setFactor(double factor) {
+        this.factor = factor;
     }
 
-    public int getRegionId() { return regionId; }
-    public void setRegionId(int regionId) { this.regionId = regionId; }
+    public String getPostcodeValue() {
+        return postcodeValue;
+    }
 
+    public void setPostcodeValue(String postcodeValue) {
+        this.postcodeValue = postcodeValue;
+    }
 
+    public Set<City> getCities() {
+        return cities;
+    }
+
+    public void setCities(Set<City> cities) {
+        this.cities = cities;
+    }
 }

@@ -3,44 +3,42 @@ package com.sina_reidenbach.InsurancePremium.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
-import java.util.List;
-
 @Entity
 public class Vehicle {
 
     @Id
-    private int vehicleId;
-    private String vehicleName;  // Name des Fahrzeugs (z.B. "Kleinwagen", "SUV", "Limousine")
-    private double vehicleFactor;  // Faktor für den Fahrzeugtyp
+    private Long Id;
+    private String name;  // Name des Fahrzeugs (z.B. "Kleinwagen", "SUV", "Limousine")
+    private double factor;  // Faktor für den Fahrzeugtyp
 
-    public Vehicle(String vehicleName,double vehicleFactor){
-        this.vehicleName = vehicleName;
-        this.vehicleFactor = vehicleFactor;
+    public Vehicle(String name, double factor){
+        this.name = name;
+        this.factor = factor;
     }
 
     public Vehicle(){}
 
     // Getter und Setter
 
-    public double getVehicleFactor() {
-        return vehicleFactor;
+    public double getFactor() {
+        return factor;
     }
 
-    public void setVehicleName(String vehicleName) {
-        this.vehicleName = vehicleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setVehicleFactor(double vehicleFactor) {
-        this.vehicleFactor = vehicleFactor;
+    public void setFactor(double factor) {
+        this.factor = factor;
     }
 
-    public String getVehicleName()  { return vehicleName; }
+    public String getName()  { return name; }
 
-    public int getVehicleId() {
-        return vehicleId;
+    public Long getId() {
+        return Id;
     }
 
-    public void setVehicleId(int vehicleId) {
-        this.vehicleId = vehicleId;
+    public void setId(Long id) {
+        Id = id;
     }
 }

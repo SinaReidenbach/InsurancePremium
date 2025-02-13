@@ -37,15 +37,15 @@ public class PostcodeService {
         if (fields.length < 7) {
             return null;
         }
-        String postcode = fields[6].replace("\"", "").trim(); // PLZ (POSTLEITZAHL)
-        String region = fields[2].replace("\"", "").trim(); // REGION1 (z. B. "Baden-Württemberg")
-        return new Region(postcode, region);
+        String postcodeValue = fields[6].replace("\"", "").trim(); // PLZ (POSTLEITZAHL)
+        String regionName = fields[2].replace("\"", "").trim(); // REGION1 (z. B. "Baden-Württemberg")
+        return new Region(regionName, postcodeValue);
     }
 
     public String getRegionByPostcode(String postcode) {
         return postcodes.stream()
-                .filter(loc -> loc.getPostcode().equals(postcode))
-                .map(Region::getRegionName)
+                .filter(loc -> loc.getPostcodeValue().equals(postcode))
+                .map(Region::getName)
                 .findFirst()
                 .orElse("Region nicht gefunden");
     }

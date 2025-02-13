@@ -1,6 +1,6 @@
 package com.sina_reidenbach.InsurancePremium.service;
 
-import com.sina_reidenbach.InsurancePremium.model.AnnoKilometers;
+import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
 import com.sina_reidenbach.InsurancePremium.model.Region;
 import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.AnnoKilometersRepository;
@@ -35,11 +35,11 @@ public class FactorService {
     // Diese Methode gibt den Kilometer-Faktor basierend auf der jährlichen Kilometerzahl zurück
     public double getKilometerFactor(int kilometers) {
         // Suche nach den passenden km-Bereichen, die die Kilometeranzahl abdecken
-        List<AnnoKilometers> ranges = annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(kilometers, kilometers);
+        List<Anno_Kilometers> ranges = annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(kilometers, kilometers);
 
         // Wenn eine passende Zeile gefunden wurde, gib den Factor zurück
         if (!ranges.isEmpty()) {
-            return ranges.get(0).getKmFactor();  // Hier holen wir den richtigen Faktor aus der Tabelle
+            return ranges.get(0).getFactor();  // Hier holen wir den richtigen Faktor aus der Tabelle
         }
 
         // Falls kein passender Bereich gefunden wurde, gib einen Standardwert zurück
@@ -49,9 +49,9 @@ public class FactorService {
     // Diese Methode gibt den Fahrzeug-Faktor basierend auf dem Fahrzeugtyp zurück
     public double getVehicleFactor(String vehicleName) {
         // Holen des Fahrzeugtyps aus der DB
-        Vehicle vehicle = vehicleRepository.findByVehicleName(vehicleName);
+        Vehicle vehicle = vehicleRepository.findByName(vehicleName);
         if (vehicle != null) {
-            return vehicle.getVehicleFactor();
+            return vehicle.getFactor();
         }
         return 1.0;  // Standardfaktor für unbekannte Fahrzeugtypen
     }
@@ -67,8 +67,8 @@ public class FactorService {
             return 1.0;  // Standardfaktor, wenn die Region nicht existiert
         }
 
-        Region region = regionRepository.findByRegionName(regionName);
-        return (region != null) ? region.getRegionFactor() : 1.0;
+        Region region = regionRepository.findByName(regionName);
+        return (region != null) ? region.getFactor() : 1.0;
     }
 
     // Berechnung der Versicherungsprämie unter Berücksichtigung der Eingaben

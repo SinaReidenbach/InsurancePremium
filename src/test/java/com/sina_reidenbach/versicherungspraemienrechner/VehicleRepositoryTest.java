@@ -16,14 +16,14 @@ class VehicleRepositoryTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         Vehicle vehicle = new Vehicle("SUV",1.5);
-        when(vehicleRepository.findByVehicleName("SUV")).thenReturn(vehicle);
+        when(vehicleRepository.findByName("SUV")).thenReturn(vehicle);
     }
 
     @Test
     void testFindByVehicleName() {
-        Vehicle result = vehicleRepository.findByVehicleName("SUV");
+        Vehicle result = vehicleRepository.findByName("SUV");
         assertNotNull(result);
-        assertEquals("SUV", result.getVehicleName());
-        assertEquals(1.5, result.getVehicleFactor());
+        assertEquals("SUV", result.getName());
+        assertEquals(1.5, result.getFactor());
     }
 }

@@ -1,6 +1,6 @@
 package com.sina_reidenbach.versicherungspraemienrechner;
 
-import com.sina_reidenbach.InsurancePremium.model.AnnoKilometers;
+import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
 import com.sina_reidenbach.InsurancePremium.model.Region;
 import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.AnnoKilometersRepository;
@@ -37,19 +37,19 @@ class FactorServiceTest {
         MockitoAnnotations.openMocks(this); // Initialisiert die Mocks
 
         Region region = mock(Region.class);
-        region.setRegionFactor(1.5);
+        region.setFactor(1.5);
 
         Vehicle vehicle = mock(Vehicle.class);
-        vehicle.setVehicleName("SUV");
-        vehicle.setVehicleFactor(1.5);
+        vehicle.setName("SUV");
+        vehicle.setFactor(1.5);
 
         when(annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(2000, 2000))
-                .thenReturn(List.of(new AnnoKilometers(0, 5000, 0.5)));
-        when(region.getRegionFactor()).thenReturn(1.5);
-        when(vehicleRepository.findByVehicleName("SUV")).thenReturn(vehicle);
-        when(regionRepository.findByRegionName("Baden-Württemberg")).thenReturn(region);
+                .thenReturn(List.of(new Anno_Kilometers(0, 5000, 0.5)));
+        when(region.getFactor()).thenReturn(1.5);
+        when(vehicleRepository.findByName("SUV")).thenReturn(vehicle);
+        when(regionRepository.findByName("Baden-Württemberg")).thenReturn(region);
         when(postcodeService.getRegionByPostcode("79189")).thenReturn("Baden-Württemberg");
-        when(vehicle.getVehicleFactor()).thenReturn(1.5);
+        when(vehicle.getFactor()).thenReturn(1.5);
     }
 
     @Test
@@ -64,7 +64,7 @@ class FactorServiceTest {
     private void testKilometerFactor(int minKm, int maxKm, double expectedFactor) {
         for (int i = minKm; i <= maxKm; i += 5000) {
             when(annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(i, i))
-                    .thenReturn(List.of(new AnnoKilometers(i, i, expectedFactor)));
+                    .thenReturn(List.of(new Anno_Kilometers(i, i, expectedFactor)));
             double result = factorService.getKilometerFactor(i);
             assertEquals(expectedFactor, result, 0.001);
         }

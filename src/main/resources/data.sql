@@ -23,11 +23,11 @@ DROP TABLE IF EXISTS `anno_kilometers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `anno_kilometers` (
-  `km_id` int NOT NULL AUTO_INCREMENT,
-  `km_min` int DEFAULT NULL,
-  `km_max` int DEFAULT NULL,
-  `km_factor` double DEFAULT NULL,
-  PRIMARY KEY (`km_id`)
+  `id` Long NOT NULL AUTO_INCREMENT,
+  `min` int DEFAULT NULL,
+  `max` int DEFAULT NULL,
+  `factor` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -49,10 +49,10 @@ DROP TABLE IF EXISTS `region`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `region` (
-  `region_id` int NOT NULL AUTO_INCREMENT,
-  `region_name` varchar(255) DEFAULT NULL,
-  `region_factor` double DEFAULT NULL,
-  PRIMARY KEY (`region_id`)
+  `id` Long NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `factor` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -74,10 +74,10 @@ DROP TABLE IF EXISTS `vehicle`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `vehicle` (
-  `vehicle_id` int NOT NULL AUTO_INCREMENT,
-  `vehicle_name` varchar(255) DEFAULT NULL,
-  `vehicle_factor` double DEFAULT NULL,
-  PRIMARY KEY (`vehicle_id`)
+  `id` Long NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `factor` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
