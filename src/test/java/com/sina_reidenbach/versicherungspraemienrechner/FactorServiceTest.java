@@ -43,7 +43,7 @@ class FactorServiceTest {
         vehicle.setName("SUV");
         vehicle.setFactor(1.5);
 
-        when(annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(2000, 2000))
+        when(annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(2000, 2000))
                 .thenReturn(List.of(new Anno_Kilometers(0, 5000, 0.5)));
         when(region.getFactor()).thenReturn(1.5);
         when(vehicleRepository.findByName("SUV")).thenReturn(vehicle);
@@ -63,7 +63,7 @@ class FactorServiceTest {
 
     private void testKilometerFactor(int minKm, int maxKm, double expectedFactor) {
         for (int i = minKm; i <= maxKm; i += 5000) {
-            when(annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(i, i))
+            when(annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(i, i))
                     .thenReturn(List.of(new Anno_Kilometers(i, i, expectedFactor)));
             double result = factorService.getKilometerFactor(i);
             assertEquals(expectedFactor, result, 0.001);

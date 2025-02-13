@@ -44,11 +44,11 @@ public class AnnoKilometersRepositoryTest {
             }
 
             // Mock das Verhalten der Repository-Methode, sodass sie genau das erwartete Objekt zurückgibt
-            when(annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(i, i))
+            when(annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(i, i))
                     .thenReturn(List.of(expectedAnnoKilometers));
 
             // Rufe die Methode auf
-            List<Anno_Kilometers> result = annoKilometersRepository.findByKmMinLessThanEqualAndKmMaxGreaterThanEqual(i, i);
+            List<Anno_Kilometers> result = annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(i, i);
 
             // Assertions
             assertNotNull(result);
