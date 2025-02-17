@@ -1,6 +1,5 @@
 package com.sina_reidenbach.InsurancePremium.model;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,7 +9,7 @@ import jakarta.persistence.Id;
 public class Anno_Kilometers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;       // Primärschlüssel
+    private Long id;       // Primärschlüssel
     private int min;      // Mindest-Kilometerstand
     private int max;      // Maximal-Kilometerstand
     private double factor;   // Faktor
@@ -42,5 +41,9 @@ public class Anno_Kilometers {
     }
 
     public void setFactor(double v) {
+    }
+
+    public Long getId() {
+        return id;
     }
 }

@@ -2,45 +2,39 @@ package com.sina_reidenbach.InsurancePremium.service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import com.sina_reidenbach.InsurancePremium.model.City;
-import com.sina_reidenbach.InsurancePremium.model.Postcode;
-import com.sina_reidenbach.InsurancePremium.model.Region;
-import com.sina_reidenbach.InsurancePremium.repository.CityRepository;
-import com.sina_reidenbach.InsurancePremium.repository.PostcodeRepository;
-import com.sina_reidenbach.InsurancePremium.repository.RegionRepository;
+import com.sina_reidenbach.InsurancePremium.model.*;
+import com.sina_reidenbach.InsurancePremium.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
-@Profile("dbinit-off") // Diese Klasse wird nur aktiv, wenn das Profil "dbinit" gesetzt ist
 public class DatabaseService {
     @Autowired
     private ApplicationContext applicationContext;
     private final List<String[]> data = new ArrayList<>();
 
     @Autowired
+    private AnnoKilometersRepository annoKilometersRepository;
+    @Autowired
     private PostcodeRepository postcodeRepository;
-
     @Autowired
     private RegionRepository regionRepository;
-
     @Autowired
     private CityRepository cityRepository;
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -65,76 +59,168 @@ public class DatabaseService {
                     firstLine = false;
                     continue; // Header überspringen
                 }
-
                 if (values.length > 7) { // Prüfen, ob genügend Spalten existieren
                     data.add(values);
                 }
             }
-
         } catch (IOException | CsvException e) {
             System.out.println("❌ Fehler beim Lesen der Datei: " + e.getMessage());
         }
     }
 
-    // Methode für Region abrufen oder erstellen
-    @Transactional
-    public Region findOrCreateRegion(String regionName) {
-        Region region = regionRepository.findByName(regionName);
-        if (region == null) {
-            region = new Region();
-            region.setName(regionName);
-            region = entityManager.merge(region);  // Merge statt save wegen des EntityManagers
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<Anno_Kilometers> createAnno_Kilometers() {
+        List<Anno_Kilometers> annoKilometersList = Arrays.asList(
+                new Anno_Kilometers(0, 1000, 0.5),
+                new Anno_Kilometers(1001, 5000, 1.0),
+                new Anno_Kilometers(5001, 10000, 1.5),
+                new Anno_Kilometers(10001, 20000, 2.0));
+
+        for (Anno_Kilometers annoKilometers : annoKilometersList) {
+            entityManager.persist(annoKilometers);
+            entityManager.flush();
+            entityManager.clear();
         }
-        return region;
+        return annoKilometersList;
     }
 
-    // Methode für City abrufen oder erstellen
-    @Transactional
-    public City findOrCreateCity(String cityName, Region region) {
-        City city = cityRepository.findByName(cityName);
-        if (city == null) {
-            city = new City();
-            city.setName(cityName);
-            city.setRegion(region);  // Region zuweisen
-            entityManager.persist(city);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<Vehicle> createVehicle() {
+        List<Vehicle> vehicleList = Arrays.asList(
+                new Vehicle("Pkw Kraftstoff", 1.5),
+                new Vehicle("Lkw ohne Anhänger", 1.5),
+                new Vehicle("Motorrad", 2.0),
+                new Vehicle("Fahrrad", 1.5),
+                new Vehicle("Bus", 1.0),
+                new Vehicle("Traktor", 0.5),
+                new Vehicle("E-Scooter", 1.5),
+                new Vehicle("Roller (Motor)", 2.0),
+                new Vehicle("PKW Elektro", 1.0),
+                new Vehicle("Wohnmobil", 1.0),
+                new Vehicle("Taxi", 1.5),
+                new Vehicle("Transporter", 1.5),
+                new Vehicle("Lkw mit Anhänger", 2.0),
+                new Vehicle("Geländewagen (SUV)", 1.5),
+                new Vehicle("Moped", 2.0));
+
+        for (Vehicle vehicle : vehicleList) {
+            entityManager.persist(vehicle);
+            entityManager.flush();
+            entityManager.clear();
         }
-        return city;
+        return vehicleList;
     }
 
-    // Methode für Postcode abrufen oder erstellen
-    @Transactional
-    public Postcode findOrCreatePostcode(String value, City city, Region region) {
-        Postcode postcode = postcodeRepository.findByPostcodeValue(value);
-        if (postcode == null) {
-            postcode = new Postcode();
-            postcode.setPostcodeValue(value);
-            postcode.setCity(city);
-            postcode.setRegion(region);
-            entityManager.persist(postcode);
-        }
-        return postcode;
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<Region> createRegion() {
+
+        List<Region> regionList = Arrays.asList(
+                            new Region("Baden-Württemberg", 1.5),
+                            new Region("Bayern", 1.5),
+                            new Region("Berlin", 2.0),
+                            new Region("Brandenburg", 1.0),
+                            new Region("Bremen", 1.5),
+                            new Region("Hamburg", 1.5),
+                            new Region("Hessen", 1.0),
+                            new Region("Mecklenburg-Vorpommern", 0.5),
+                            new Region("Niedersachsen", 1.0),
+                            new Region("Nordrhein-Westfalen", 1.5),
+                            new Region("Rheinland-Pfalz", 1.0),
+                            new Region("Saarland", 1.0),
+                            new Region("Sachsen", 1.0),
+                            new Region("Sachsen-Anhalt", 0.5),
+                            new Region("Schleswig-Holstein", 0.5),
+                            new Region("Thüringen", 1.0));
+
+                    for (Region region : regionList) {
+                        entityManager.persist(region);
+                        entityManager.flush();
+                        entityManager.clear();
+                    }
+        long count = (long) entityManager.createQuery("SELECT COUNT(r) FROM Region r").getSingleResult();
+
+        return regionList;
+                }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public City createCity(String cityName, Region region) {
+        return cityRepository.findFirstByName(cityName)
+                .orElseGet(() -> {
+                    City city = new City();
+                    city.setName(cityName);
+                    city.setRegion(region);
+                    entityManager.persist(city);
+                    entityManager.flush();
+                    entityManager.clear();
+                    return city;
+                });
     }
 
-    // Hauptmethode zum Speichern der Daten
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Postcode createPostcode(String value, City city, Region region) {
+        return postcodeRepository.findFirstByPostcodeValue(value)
+                .orElseGet(() -> {
+                    Postcode postcode = new Postcode();
+                    postcode.setPostcodeValue(value);
+                    postcode.setCity(city);
+                    postcode.setRegion(region);
+                    entityManager.persist(postcode);
+                    entityManager.flush();
+                    entityManager.clear();
+                    return postcode;
+                });
+    }
+
+    @Transactional(noRollbackFor = Exception.class)
     public void saveDataTransactional() {
+
         try {
+            if (data.isEmpty()) {
+                System.out.println("⚠️ Keine Daten zum Speichern!");
+                return;
+            }
+
+            List<Anno_Kilometers> annoKilometersList = createAnno_Kilometers();
+            System.out.println("🚀 Tabelle Anno_kilometers wurde erstellt und befüllt");
+            List<Vehicle> vehicleList = createVehicle();
+            System.out.println("🚀 Tabelle Vehicle wurde erstellt und befüllt");
+            List<Region> regionList = createRegion();
+            System.out.println("🚀 Tabelle Region wurde erstellt und befüllt");
+            System.out.println("🚀 einen Moment bitte....");
+
             for (String[] row : data) {
                 String regionName = row[2].replace("\"", "").trim();
-                String value = row[6].replace("\"", "").trim();;
+                String value = row[6].replace("\"", "").trim();
                 String cityName = row[7].replace("\"", "").trim();
 
-                // Region abrufen oder neu erstellen
-                Region region = findOrCreateRegion(regionName);
+                // Überprüfen, ob die Postleitzahl leer oder ungültig ist
+                if (value.isEmpty() || value.length() != 5 || !value.matches("\\d{5}")) { // Nur 5-stellige PLZ
+                    System.err.println("⚠️ Ungültige oder fehlende Postleitzahl: " + value);
+                }
 
-                // City erstellen und Region zuweisen
-                City city = findOrCreateCity(cityName, region);
-
-                // Postcode erstellen und Region zuweisen
-                Postcode postcode = findOrCreatePostcode(value, city, region);
-
-                // Weitere Logik kann hier nach Bedarf eingefügt werden
+                // Überprüfen, ob Stadt und Region ebenfalls fehlen
+                if (regionName.isEmpty() || cityName.isEmpty()) {
+                    System.err.println("⚠️ Fehlende Region oder Stadt für Postleitzahl: " + value);
+                }
+//ANPASSEN AUF DIE NEUE CREATEREGION ODER RÜCKGÄNGIG
+                // Wenn alles gültig ist, die Region, Stadt und Postleitzahl speichern
+                if (!regionName.isEmpty() && !cityName.isEmpty() && !value.isEmpty() && value.matches("\\d{5}")) {
+                    Optional<Region> optionalRegion = regionRepository.findByName(regionName);
+                    if (optionalRegion.isEmpty()) {
+                        System.err.println("⚠️ Region nicht gefunden: " + regionName);
+                        continue; // Falls die Region nicht existiert, wird dieser Datensatz übersprungen
+                    }
+                    Region region = optionalRegion.get();
+                    City city = createCity(cityName, region);
+                    Postcode postcode = createPostcode(value, city, region);
+                }
             }
+            System.out.println("🚀 Tabellen Postcode und City wurden erstellt und befüllt");
+            entityManager.flush();
+            entityManager.clear();
+
+            System.out.println("✅ Alle Daten wurden erfolgreich gespeichert!");
+
         } catch (Exception e) {
             System.out.println("❌ Fehler beim Speichern der Daten: " + e.getMessage());
             e.printStackTrace();

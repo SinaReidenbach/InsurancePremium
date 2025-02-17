@@ -5,6 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface PostcodeRepository extends JpaRepository<Postcode, Long> {
-    Postcode findByPostcodeValue(String postcodeValue);
+    Optional<Postcode> findFirstByPostcodeValue(String value);
+    List<Postcode> findByPostcodeValueStartingWith(String postcodeValue);
 }

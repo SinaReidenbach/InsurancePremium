@@ -4,19 +4,25 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(name = "region", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private double factor;
-    private String postcodeValue;
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<City> cities;
 
 
     //Konstruktor
+
+    public Region(String name, double factor) {
+        this.name = name;
+        this.factor = factor;
+    }
+
     public Region() {}
 
     // Getter und Setter
@@ -42,14 +48,6 @@ public class Region {
 
     public void setFactor(double factor) {
         this.factor = factor;
-    }
-
-    public String getPostcodeValue() {
-        return postcodeValue;
-    }
-
-    public void setPostcodeValue(String postcodeValue) {
-        this.postcodeValue = postcodeValue;
     }
 
     public Set<City> getCities() {

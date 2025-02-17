@@ -1,13 +1,16 @@
 package com.sina_reidenbach.InsurancePremium.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class Vehicle {
 
     @Id
-    private Long Id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;  // Name des Fahrzeugs (z.B. "Kleinwagen", "SUV", "Limousine")
     private double factor;  // Faktor für den Fahrzeugtyp
 
@@ -17,6 +20,7 @@ public class Vehicle {
     }
 
     public Vehicle(){}
+
 
     // Getter und Setter
 
@@ -35,10 +39,10 @@ public class Vehicle {
     public String getName()  { return name; }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 }

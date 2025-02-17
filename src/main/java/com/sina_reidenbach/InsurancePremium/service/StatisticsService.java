@@ -4,7 +4,6 @@ import com.sina_reidenbach.InsurancePremium.model.Statistics;
 import com.sina_reidenbach.InsurancePremium.repository.StatisticsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 
 @Service

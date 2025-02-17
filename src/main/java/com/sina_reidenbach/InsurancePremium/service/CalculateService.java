@@ -1,48 +1,88 @@
 package com.sina_reidenbach.InsurancePremium.service;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
+import com.sina_reidenbach.InsurancePremium.model.Region;
+import com.sina_reidenbach.InsurancePremium.model.Vehicle;
+import com.sina_reidenbach.InsurancePremium.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class CalculateService {
-    private final FactorService factorService;
-    private final PostcodeService postcodeService;
-    int km = 10000;
-    String regionName;
-    String postcode = "79189";
-    String vehicleName = "SUV";
+    @Autowired
+    private VehicleRepository vehicleRepository;
+    @Autowired
+    private AnnoKilometersRepository annoKilometersRepository;
+    @Autowired
+    private RegionRepository regionRepository;
+
+
     int basis = 500;
     double premium=0;
-
-    public CalculateService(FactorService insurancePremiumService, JdbcTemplate jdbcTemplate, PostcodeService postcodeService) {
-
-        this.factorService = insurancePremiumService;
-        this.postcodeService = postcodeService;
+    @Autowired
+    public CalculateService(RegionRepository regionRepository,
+                            VehicleRepository vehicleRepository,
+                            AnnoKilometersRepository annoKilometersRepository) {
+        this.regionRepository = regionRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.annoKilometersRepository = annoKilometersRepository;
     }
 
-    public double calculatePremium(int km, String postcode, String vehicleName) {
+    public double calculateRegionFactor(String postcode) {
+        // Verwende eine AtomicReference, um den Wert von 'regionFactor' innerhalb des Lambdas zu ändern
+        AtomicReference<Double> regionFactor = new AtomicReference<>(0.0); // Standardwert 1.0
 
-        String regionName = postcodeService.getRegionByPostcode(postcode);
+        Optional<Region> regionOpt = regionRepository.findByPostcodeValueStartingWith(postcode);
 
-        double f1 = factorService.getKilometerFactor(km);
-        double f2 = factorService.getRegionFactorByPostcode(postcode);
-        double f3 = factorService.getVehicleFactor(vehicleName);
+        // Wenn eine Region vorhanden ist, den Faktor setzen
+        regionOpt.ifPresent(region -> {
+            regionFactor.set(region.getFactor());
+            System.err.println("Regionfaktor = " + regionFactor.get());
+        });
+        return regionFactor.get();
+    }
 
-        System.err.println("Alle Faktoren gespeichert.");
-        System.err.println("F1: " + f1 + " / F2: " + f2 + " / F3: " + f3);
-        System.err.println("Gesamtfaktor: " + f1*f2*f3);
-        premium = f1 * f2 * f3 * basis;
+    public double calculateVehicleFactor(Long vehicleId) {
+        // Verwende eine AtomicReference, um den Wert von 'vehicleFactor' innerhalb des Lambdas zu ändern
+        AtomicReference<Double> vehicleFactor = new AtomicReference<>(0.0); // Standardwert 1.0
+
+        Optional<Vehicle> vehicleOpt = vehicleRepository.findById(vehicleId);
+
+        // Wenn ein Vehicle vorhanden ist, den Faktor setzen
+        vehicleOpt.ifPresent(vehicle -> {
+            vehicleFactor.set(vehicle.getFactor());
+            System.err.println("Vehiclefaktor = " + vehicleFactor.get());
+        });
+        return vehicleFactor.get();
+    }
+
+    public double calculateAnnoKilometersFactor(int kmMin, int kmMax) {
+        List<Anno_Kilometers> annoKilometers = annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(kmMin,kmMax);
+
+        double kmFactor = annoKilometers.get(0).getFactor();
+        System.err.println("Kilometerfaktor = " + kmFactor);
+
+        return kmFactor;
+    }
+
+
+    public double calculatePremium(int kmMin, int kmMax, Long vehicleId, String postcode) {
+        double f1 = calculateAnnoKilometersFactor(kmMin,kmMax);
+        double f2 = calculateVehicleFactor(vehicleId);
+        double f3 = calculateRegionFactor(postcode);
+
+        double premiumFactor = f1*f2*f3;
+        premium = premiumFactor * basis;
         System.err.println("Berechnete Prämie: " + premium);
 
         return premium;
     }
 }
-        //Speichern der eingaben in der datenbank anonymisiert
         //HTML-API für Drittanbieter
-        //Frontend zur Eingabe der parameter
+        //jährliche IP Löschung und Speichern in Archiv Jahr
 
-        /*„Ich stimme der Speicherung meiner IP-Adresse zu,
-        um die Berechnungen zu ermöglichen und die Nutzung zu
-        statistischen Zwecken zu unterstützen.
-        Weitere Informationen finden Sie in der Datenschutzerklärung.“
-         */
+
+
