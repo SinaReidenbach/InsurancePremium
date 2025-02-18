@@ -5,6 +5,7 @@ import com.sina_reidenbach.InsurancePremium.model.Region;
 import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +20,8 @@ public class CalculateService {
     @Autowired
     private RegionRepository regionRepository;
 
-
-    int basis = 500;
+    @Value("${insurance.premium.basis}")
+    private int basis;
     double premium=0;
     @Autowired
     public CalculateService(RegionRepository regionRepository,
@@ -40,7 +41,6 @@ public class CalculateService {
         // Wenn eine Region vorhanden ist, den Faktor setzen
         regionOpt.ifPresent(region -> {
             regionFactor.set(region.getFactor());
-            System.err.println("Regionfaktor = " + regionFactor.get());
         });
         return regionFactor.get();
     }
@@ -54,7 +54,6 @@ public class CalculateService {
         // Wenn ein Vehicle vorhanden ist, den Faktor setzen
         vehicleOpt.ifPresent(vehicle -> {
             vehicleFactor.set(vehicle.getFactor());
-            System.err.println("Vehiclefaktor = " + vehicleFactor.get());
         });
         return vehicleFactor.get();
     }
@@ -63,7 +62,6 @@ public class CalculateService {
         List<Anno_Kilometers> annoKilometers = annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(kmMin,kmMax);
 
         double kmFactor = annoKilometers.get(0).getFactor();
-        System.err.println("Kilometerfaktor = " + kmFactor);
 
         return kmFactor;
     }
@@ -76,7 +74,6 @@ public class CalculateService {
 
         double premiumFactor = f1*f2*f3;
         premium = premiumFactor * basis;
-        System.err.println("Berechnete Prämie: " + premium);
 
         return premium;
     }

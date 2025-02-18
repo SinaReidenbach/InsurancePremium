@@ -1,4 +1,4 @@
-package com.sina_reidenbach.versicherungspraemienrechner;
+package com.sina_reidenbach.versicherungspraemienrechner.repositoryTests;
 import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.VehicleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,5 +25,9 @@ class VehicleRepositoryTest {
         assertNotNull(result);
         assertEquals("SUV", result.getName());
         assertEquals(1.5, result.getFactor());
+    }
+
+    @Test
+    void testFindById(){
     }
 }

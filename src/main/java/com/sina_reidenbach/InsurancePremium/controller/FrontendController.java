@@ -1,4 +1,4 @@
-package com.sina_reidenbach.InsurancePremium.rest;
+package com.sina_reidenbach.InsurancePremium.controller;
 
 import java.util.Collections;
 import java.util.Comparator;

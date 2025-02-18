@@ -1,4 +1,4 @@
-package com.sina_reidenbach.versicherungspraemienrechner;
+package com.sina_reidenbach.versicherungspraemienrechner.serviceTests;
 
 import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
 import com.sina_reidenbach.InsurancePremium.repository.AnnoKilometersRepository;
@@ -10,13 +10,8 @@ import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.mockito.Captor;
-
-
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -80,4 +75,6 @@ class CalculateServiceTest {
         assertEquals(1.0, kmFactor);
 
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.sina_reidenbach.versicherungspraemienrechner;
+package com.sina_reidenbach.versicherungspraemienrechner.repositoryTests;
 
 import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
 import com.sina_reidenbach.InsurancePremium.repository.AnnoKilometersRepository;
@@ -8,9 +8,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class AnnoKilometersRepositoryTest {
@@ -20,10 +20,14 @@ public class AnnoKilometersRepositoryTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        Anno_Kilometers annoKilometers = new Anno_Kilometers(0,1000,0.5);
+
+        when(annoKilometersRepository.findById(1L)).thenReturn(Optional.of(annoKilometers));
+
     }
 
     @Test
-    void findByKmMinLessThanEqualAndKmMaxGreaterThanEqual() {
+    void testFindByKmMinLessThanEqualAndKmMaxGreaterThanEqual() {
         // Erstelle AnnoKilometers-Instanzen
         Anno_Kilometers annoKilometers1 = new Anno_Kilometers(0, 5000, 0.5);
         Anno_Kilometers annoKilometers2 = new Anno_Kilometers(5001, 10000, 1.0);
@@ -55,5 +59,16 @@ public class AnnoKilometersRepositoryTest {
             assertEquals(1, result.size());  // Sicherstellen, dass genau ein Objekt zurückgegeben wird
             assertEquals(expectedAnnoKilometers.getFactor(), result.get(0).getFactor());
         }
+    }
+    @Test
+    void testFindById() {
+
+        Optional<Anno_Kilometers> annoKilometers = annoKilometersRepository.findById(1L);
+        assertTrue(annoKilometers.isPresent());
+
+        Anno_Kilometers result = annoKilometers.get();
+
+        assertEquals(0.5, result.getFactor());
+
     }
 }
