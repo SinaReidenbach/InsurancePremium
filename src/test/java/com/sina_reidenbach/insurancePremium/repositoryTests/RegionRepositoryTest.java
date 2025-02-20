@@ -1,12 +1,9 @@
-package com.sina_reidenbach.versicherungspraemienrechner.repositoryTests;
+package com.sina_reidenbach.insurancePremium.repositoryTests;
 import com.sina_reidenbach.InsurancePremium.model.Region;
-import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.RegionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -43,12 +40,24 @@ class RegionRepositoryTest {
     }
 
     @Test
+    void testFindByRegionNameNotFound() {
+        Optional<Region> region = regionRepository.findByName("Bayern");
+        assertFalse(region.isPresent());  // Test für nicht vorhandene Region
+    }
+
+    @Test
     void testfindByCities_Name() {
 
         Region result = regionRepository.findByCities_Name("Leverkusen");
 
         assertEquals("Nordrhein-Westfalen", result.getName());
         assertEquals(1.5, result.getFactor());
+    }
+
+    @Test
+    void testFindByCities_NameNotFound() {
+        Region result = regionRepository.findByCities_Name("München");
+        assertNull(result);  // Test für nicht vorhandene Stadt
     }
 
     @Test
@@ -61,7 +70,12 @@ class RegionRepositoryTest {
 
         assertEquals("Nordrhein-Westfalen", result.getName());
         assertEquals(1.5, result.getFactor());
-
-
     }
+
+    @Test
+    void testFindByPostcodeValueStartingWithNotFound() {
+        Optional<Region> region = regionRepository.findByPostcodeValueStartingWith("99999");
+        assertFalse(region.isPresent());  // Test für nicht vorhandenes Postcode-Präfix
+    }
+
 }

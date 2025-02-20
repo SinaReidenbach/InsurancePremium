@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class InsurancePremiumApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(InsurancePremiumApplication.class, args);
+		SpringApplication app = new SpringApplication(InsurancePremiumApplication.class);
+		app.setAdditionalProfiles("prod");  // Setzt das Profil auf 'prod'
+		app.run(args);
 	}
 }

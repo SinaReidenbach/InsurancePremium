@@ -1,4 +1,4 @@
-package com.sina_reidenbach.versicherungspraemienrechner.serviceTests;
+package com.sina_reidenbach.insurancePremium.service;
 
 import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
 import com.sina_reidenbach.InsurancePremium.repository.AnnoKilometersRepository;

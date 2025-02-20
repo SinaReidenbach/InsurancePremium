@@ -21,6 +21,12 @@ public class Vehicle {
 
     public Vehicle(){}
 
+    public Vehicle(long id, String name, double factor) {
+        this.id = id;
+        this.name = name;
+        this.factor = factor;
+    }
+
 
     // Getter und Setter
 
