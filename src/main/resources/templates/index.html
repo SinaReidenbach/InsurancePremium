@@ -18,7 +18,8 @@
 <div class="input-form">
     <form action="/berechnen" method="POST">
         <label for="km">Jährliche Kilometerleistung:</label>
-        <input type="number" id="km" name="km" placeholder="Jährliche Kilometerleistung" required>
+        <input type="number" id="km" name="km" placeholder="Jährliche Kilometerleistung" min="0" max="2147483647" required>
+
 
         <input type="text" id="postcode" name="postcodeValue" placeholder="Postleitzahl der Zulassungsstelle" list="postcode-list" required oninput="filterPostcodes()">
         <datalist id="postcode-list">

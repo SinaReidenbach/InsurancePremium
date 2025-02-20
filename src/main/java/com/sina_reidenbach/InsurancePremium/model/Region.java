@@ -25,6 +25,12 @@ public class Region {
 
     public Region() {}
 
+    public Region(long id, String name, double factor) {
+        this.id = id;
+        this.name = name;
+        this.factor = factor;
+    }
+
     // Getter und Setter
     public Long getId() {
         return id;

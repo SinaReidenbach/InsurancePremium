@@ -18,6 +18,17 @@ public class City {
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Postcode> postcodes;
 
+    public City() {}
+
+    public City(String name) {
+        this.name = name;
+    }
+
+    public City(String name, Region region) {
+        this.name = name;
+        this.region = region;
+    }
+
     // Getter und Setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

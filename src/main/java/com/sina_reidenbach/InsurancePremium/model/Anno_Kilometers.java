@@ -22,6 +22,13 @@ public class Anno_Kilometers {
 
     public Anno_Kilometers() {}
 
+    public Anno_Kilometers(long id, int min, int max, double factor) {
+        this.id = id;
+        this.min = min;
+        this.max = max;
+        this.factor = factor;
+    }
+
     // Getter und Setter
     public double getFactor() {
         return factor;

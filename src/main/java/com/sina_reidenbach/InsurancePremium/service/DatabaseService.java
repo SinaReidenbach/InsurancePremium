@@ -47,7 +47,7 @@ public class DatabaseService {
         proxy.saveDataTransactional(); // Aufruf über Proxy
     }
 
-    private void readCSV() {
+    public void readCSV() {
         try (Reader reader = new FileReader(new ClassPathResource("postcodes.csv").getFile());
              CSVReader csvReader = new CSVReader(reader)) {
 
@@ -115,32 +115,32 @@ public class DatabaseService {
     public List<Region> createRegion() {
 
         List<Region> regionList = Arrays.asList(
-                            new Region("Baden-Württemberg", 1.5),
-                            new Region("Bayern", 1.5),
-                            new Region("Berlin", 2.0),
-                            new Region("Brandenburg", 1.0),
-                            new Region("Bremen", 1.5),
-                            new Region("Hamburg", 1.5),
-                            new Region("Hessen", 1.0),
-                            new Region("Mecklenburg-Vorpommern", 0.5),
-                            new Region("Niedersachsen", 1.0),
-                            new Region("Nordrhein-Westfalen", 1.5),
-                            new Region("Rheinland-Pfalz", 1.0),
-                            new Region("Saarland", 1.0),
-                            new Region("Sachsen", 1.0),
-                            new Region("Sachsen-Anhalt", 0.5),
-                            new Region("Schleswig-Holstein", 0.5),
-                            new Region("Thüringen", 1.0));
+                new Region("Baden-Württemberg", 1.5),
+                new Region("Bayern", 1.5),
+                new Region("Berlin", 2.0),
+                new Region("Brandenburg", 1.0),
+                new Region("Bremen", 1.5),
+                new Region("Hamburg", 1.5),
+                new Region("Hessen", 1.0),
+                new Region("Mecklenburg-Vorpommern", 0.5),
+                new Region("Niedersachsen", 1.0),
+                new Region("Nordrhein-Westfalen", 1.5),
+                new Region("Rheinland-Pfalz", 1.0),
+                new Region("Saarland", 1.0),
+                new Region("Sachsen", 1.0),
+                new Region("Sachsen-Anhalt", 0.5),
+                new Region("Schleswig-Holstein", 0.5),
+                new Region("Thüringen", 1.0));
 
-                    for (Region region : regionList) {
-                        entityManager.persist(region);
-                        entityManager.flush();
-                        entityManager.clear();
-                    }
+        for (Region region : regionList) {
+            entityManager.persist(region);
+            entityManager.flush();
+            entityManager.clear();
+        }
         long count = (long) entityManager.createQuery("SELECT COUNT(r) FROM Region r").getSingleResult();
 
         return regionList;
-                }
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public City createCity(String cityName, Region region) {

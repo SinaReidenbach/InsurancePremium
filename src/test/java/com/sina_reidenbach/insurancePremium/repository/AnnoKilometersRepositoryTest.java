@@ -1,4 +1,4 @@
-package com.sina_reidenbach.versicherungspraemienrechner.repositoryTests;
+package com.sina_reidenbach.insurancePremium.repository;
 
 import com.sina_reidenbach.InsurancePremium.model.Anno_Kilometers;
 import com.sina_reidenbach.InsurancePremium.repository.AnnoKilometersRepository;
@@ -6,10 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -70,5 +68,17 @@ public class AnnoKilometersRepositoryTest {
 
         assertEquals(0.5, result.getFactor());
 
+    }
+    @Test
+    void testFindById_notFound() {
+        when(annoKilometersRepository.findById(999L)).thenReturn(Optional.empty());
+        Optional<Anno_Kilometers> result = annoKilometersRepository.findById(999L);
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    void testFindByMinLessThanEqualAndMaxGreaterThanEqual_noMatch() {
+        List<Anno_Kilometers> result = annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(100000, 200000);
+        assertTrue(result.isEmpty());
     }
 }

@@ -16,6 +16,10 @@ public class Postcode {
     @JoinColumn(name = "region_id")
     private Region region;
 
+    public Postcode() {
+    }
+
+
     // Getter und Setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -31,4 +35,5 @@ public class Postcode {
     public void setRegion(Region region) {
         this.region = region;
     }
+
 }

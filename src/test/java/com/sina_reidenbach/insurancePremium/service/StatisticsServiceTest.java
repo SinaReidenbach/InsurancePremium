@@ -1,0 +1,84 @@
+package com.sina_reidenbach.insurancePremium.service;
+
+import com.sina_reidenbach.InsurancePremium.model.Statistics;
+import com.sina_reidenbach.InsurancePremium.repository.StatisticsRepository;
+import com.sina_reidenbach.InsurancePremium.service.StatisticsService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class StatisticsServiceTest {
+
+    @InjectMocks
+    private StatisticsService statisticsService;
+
+    @Mock
+    private StatisticsRepository statisticsRepository;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testSaveStatistics() {
+        // Arrange
+        LocalDateTime dateTime = LocalDateTime.now();
+        String postcode = "12345";
+        String vehicleName = "TestVehicle";
+        int km = 15000;
+        double premium = 200.0;
+        String ipAddress = "192.168.0.1";
+
+        // Act
+        statisticsService.saveStatistics(dateTime, postcode, vehicleName, km, premium, ipAddress);
+
+        // Assert
+        // Überprüfen, ob die save-Methode des Repositories aufgerufen wurde
+        verify(statisticsRepository, times(1)).save(any(Statistics.class));
+    }
+
+    @Test
+    void testSaveStatisticsWithNullValues() {
+        // Arrange
+        LocalDateTime dateTime = LocalDateTime.now();
+        String postcode = null;
+        String vehicleName = "TestVehicle";
+        int km = 15000;
+        double premium = 200.0;
+        String ipAddress = "192.168.0.1";
+
+        // Act und Assert: Erwartung, dass bei null-Werten keine Exception geworfen wird
+        assertDoesNotThrow(() -> statisticsService.saveStatistics(dateTime, postcode, vehicleName, km, premium, ipAddress));
+    }
+
+    @Test
+    void testSaveStatisticsCallsRepositoryWithCorrectData() {
+        // Arrange
+        LocalDateTime dateTime = LocalDateTime.now();
+        String postcode = "54321";
+        String vehicleName = "VehicleX";
+        int km = 10000;
+        double premium = 150.0;
+        String ipAddress = "10.0.0.1";
+
+        // Act
+        statisticsService.saveStatistics(dateTime, postcode, vehicleName, km, premium, ipAddress);
+
+        // Assert
+        // Überprüfen, ob save mit den richtigen Parametern aufgerufen wurde
+        verify(statisticsRepository).save(argThat(statistics ->
+                statistics.getDateTime().equals(dateTime) &&
+                        statistics.getPostcode().equals(postcode) &&
+                        statistics.getVehicle().equals(vehicleName) &&
+                        statistics.getAnnokilometers() == km &&
+                        statistics.getPremium() == premium &&
+                        statistics.getIpAddress().equals(ipAddress)
+        ));
+    }
+}
