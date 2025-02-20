@@ -1,4 +1,4 @@
-package com.sina_reidenbach.insurancePremium.repositoryTests;
+package com.sina_reidenbach.insurancePremium.repository;
 
 import com.sina_reidenbach.InsurancePremium.model.Postcode;
 import com.sina_reidenbach.InsurancePremium.model.Region;

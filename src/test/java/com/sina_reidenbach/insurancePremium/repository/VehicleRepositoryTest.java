@@ -1,4 +1,4 @@
-package com.sina_reidenbach.insurancePremium.repositoryTests;
+package com.sina_reidenbach.insurancePremium.repository;
 import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.VehicleRepository;
 import org.junit.jupiter.api.BeforeEach;

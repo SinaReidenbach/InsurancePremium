@@ -1,4 +1,4 @@
-package com.sina_reidenbach.insurancePremium.serviceTests;
+package com.sina_reidenbach.insurancePremium.service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -6,33 +6,25 @@ import com.sina_reidenbach.InsurancePremium.model.*;
 import com.sina_reidenbach.InsurancePremium.repository.*;
 import com.sina_reidenbach.InsurancePremium.service.DatabaseService;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 
 
 import java.io.BufferedReader;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

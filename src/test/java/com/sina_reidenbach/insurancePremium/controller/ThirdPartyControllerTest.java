@@ -1,4 +1,4 @@
-package com.sina_reidenbach.insurancePremium.controllerTests;
+package com.sina_reidenbach.insurancePremium.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sina_reidenbach.InsurancePremium.controller.ThirdPartyController;
@@ -7,7 +7,6 @@ import com.sina_reidenbach.InsurancePremium.repository.*;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;

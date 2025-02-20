@@ -1,4 +1,4 @@
-package com.sina_reidenbach.insurancePremium.serviceTests;
+package com.sina_reidenbach.insurancePremium.service;
 
 import com.sina_reidenbach.InsurancePremium.model.Statistics;
 import com.sina_reidenbach.InsurancePremium.repository.StatisticsRepository;

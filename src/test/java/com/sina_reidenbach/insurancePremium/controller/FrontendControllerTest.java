@@ -1,4 +1,4 @@
-package com.sina_reidenbach.insurancePremium.controllerTests;
+package com.sina_reidenbach.insurancePremium.controller;
 
 import com.sina_reidenbach.InsurancePremium.controller.FrontendController;
 import com.sina_reidenbach.InsurancePremium.model.City;
