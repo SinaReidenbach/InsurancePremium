@@ -1,15 +1,13 @@
 package com.sina_reidenbach.InsurancePremium.controller;
 
-import com.sina_reidenbach.InsurancePremium.dto.AnnoKilometersResponse;
-import com.sina_reidenbach.InsurancePremium.dto.PremiumResponse;
-import com.sina_reidenbach.InsurancePremium.dto.RegionResponse;
-import com.sina_reidenbach.InsurancePremium.dto.VehicleResponse;
+import com.sina_reidenbach.InsurancePremium.dto.*;
 import com.sina_reidenbach.InsurancePremium.model.*;
 import com.sina_reidenbach.InsurancePremium.repository.*;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -34,20 +32,44 @@ public class ThirdPartyController {
     private PostcodeRepository postcodeRepository;
 
     @GetMapping("/api/options/vehicles")
-    public VehicleResponse getVehicles() {
+    public ResponseEntity<VehicleResponse> getVehicles() {
         VehicleResponse response = new VehicleResponse();
-        List<Vehicle> vehicles = vehicleRepository.findAll();
-        Map<Long, Map<String, Object>> vehicleMap = new HashMap<>();
-        for (Vehicle vehicle : vehicles) {
-            Map<String, Object> vehicleData = new HashMap<>();
-            vehicleData.put("vehicleName", vehicle.getName());
-            vehicleData.put("factor", vehicle.getFactor());
-            vehicleMap.put(vehicle.getId(), vehicleData);
-        }
-        response.setVehicles(vehicleMap);
-        return response;
-    }
+        try {
+            List<Vehicle> vehicles = vehicleRepository.findAll();
+            if (vehicles.isEmpty()) {
+                // Fehlerhafte Antwort mit der richtigen Struktur
+                Map<Long, Map<String, Object>> errorMap = new HashMap<>();
+                Map<String, Object> errorData = new HashMap<>();
+                errorData.put("error", "NO_VEHICLES_FOUND");
+                errorData.put("message", "Keine Fahrzeuge gefunden.");
+                errorMap.put(0L, errorData);  // 0L als Dummy-Id für den Fehler
+                response.setVehicles(errorMap);
+                return ResponseEntity.status(404).body(response);  // 404 Not Found
+            }
 
+            // Erfolgreiche Antwort mit Fahrzeugen
+            Map<Long, Map<String, Object>> vehicleMap = new HashMap<>();
+            for (Vehicle vehicle : vehicles) {
+                Map<String, Object> vehicleData = new HashMap<>();
+                vehicleData.put("vehicleName", vehicle.getName());
+                vehicleData.put("factor", vehicle.getFactor());
+                vehicleMap.put(vehicle.getId(), vehicleData);
+            }
+            response.setVehicles(vehicleMap);
+
+            return ResponseEntity.ok(response);  // Erfolgreiche Antwort
+
+        } catch (Exception e) {
+            // Allgemeiner Fehler, auch hier die korrekte Struktur für den Fehler verwenden
+            Map<Long, Map<String, Object>> errorMap = new HashMap<>();
+            Map<String, Object> errorData = new HashMap<>();
+            errorData.put("error", "INTERNAL_SERVER_ERROR");
+            errorData.put("message", "Ein unerwarteter Fehler ist aufgetreten.");
+            errorMap.put(0L, errorData);  // Dummy-Id für Fehler
+            response.setVehicles(errorMap);
+            return ResponseEntity.status(500).body(response);  // 500 Internal Server Error
+        }
+    }
     @GetMapping("/api/options/regions")
     public RegionResponse getRegions() {
         RegionResponse response = new RegionResponse();
@@ -79,28 +101,72 @@ public class ThirdPartyController {
         return response;
     }
 
-        @PostMapping("/api/calculate")
-        public PremiumResponse calculatePremium(@RequestBody Map<String, Object> premiumRequest) {
-            PremiumResponse response = new PremiumResponse();
+    @PostMapping("/api/calculate")
+    public ResponseEntity<?> calculatePremium(@RequestBody Map<String, Object> premiumRequest) {
+        PremiumResponse response = new PremiumResponse();
+        List<String> errorMessages = new ArrayList<>(); // Liste für Fehlernachrichten
 
-            try {
-                Number vehicleIdNumber = (Number) premiumRequest.get("vehicleId");
-                Long vehicleId = vehicleIdNumber.longValue();
-                int annoKilometers = (int) premiumRequest.get("annoKilometers");
-                String postcode = (String) premiumRequest.get("postcode");
+        try {
+            // Eingabewerte extrahieren
+            Number vehicleIdNumber = (Number) premiumRequest.get("vehicleId");
+            Long vehicleId = vehicleIdNumber != null ? vehicleIdNumber.longValue() : null;
+            Integer annoKilometers = (Integer) premiumRequest.get("annoKilometers");
+            String postcode = (String) premiumRequest.get("postcode");
 
-                // Prämie berechnen
-                double premiumAmount= calculateService.calculatePremium(annoKilometers,annoKilometers,vehicleId,postcode);
-
-                // Prämie in der Antwort setzen
-                Map<String, Object> premium = new HashMap<>();
-                premium.put("premium", premiumAmount);
-                response.setPremium(premium);
-
-            } catch (Exception e) {
-                response.setPremium(null);  // Setze null als Fallback
+            // Eingabewerte validieren
+            if (vehicleId == null) {
+                errorMessages.add("vehicleId muss angegeben werden.");
+            }
+            if (annoKilometers == null) {
+                errorMessages.add("annoKilometers muss angegeben werden.");
+            }
+            if (postcode == null) {
+                errorMessages.add("postcode muss angegeben werden.");
             }
 
-            return response;
+            // Falls es Fehler gibt, returne sie alle
+            if (!errorMessages.isEmpty()) {
+                ErrorResponse errorResponse = new ErrorResponse("Fehlerhafte Eingabewerte", String.join(", ", errorMessages));
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            // Fahrzeug prüfen
+            Optional<Vehicle> vehicle = vehicleRepository.findById(vehicleId);
+            if (vehicle.isEmpty()) {
+                errorMessages.add("Kein Fahrzeug mit der angegebenen ID gefunden.");
+            }
+
+            // Postleitzahl prüfen
+            Optional<Postcode> postcodeEntity = postcodeRepository.findFirstByPostcodeValue(postcode);
+            if (postcodeEntity.isEmpty()) {
+                errorMessages.add("Kein Postleitzahl-Eintrag für den angegebenen Wert gefunden.");
+            }
+
+            // Kilometer validieren
+            if (annoKilometers <= 0) {
+                errorMessages.add("Kilometerzahl muss größer als 0 sein.");
+            }
+
+            // Wenn Fehler gefunden wurden, alle Fehler in einer Antwort zurückgeben
+            if (!errorMessages.isEmpty()) {
+                ErrorResponse errorResponse = new ErrorResponse("Fehlerhafte Eingabewerte", String.join(", ", errorMessages));
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            // Berechnung der Prämie
+            double premiumAmount = calculateService.calculatePremium(annoKilometers, annoKilometers, vehicleId, postcode);
+
+            // Erfolgreiche Antwort mit der berechneten Prämie
+            Map<String, Object> premium = new HashMap<>();
+            premium.put("premium", premiumAmount);
+            response.setPremium(premium);
+
+            return ResponseEntity.ok(response);  // Erfolgreiche Antwort
+
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse("Serverfehler", "Ein unerwarteter Fehler ist aufgetreten");
+            return ResponseEntity.status(500).body(errorResponse);
         }
     }
+
+}
