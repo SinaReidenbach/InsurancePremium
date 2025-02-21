@@ -1,6 +1,5 @@
 package com.sina_reidenbach.InsurancePremium.controller;
 
-import java.util.Collections;
 import java.util.Comparator;
 
 import com.sina_reidenbach.InsurancePremium.model.City;
@@ -23,14 +22,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.sina_reidenbach.InsurancePremium.service.StatisticsService;
 import java.time.LocalDateTime;
 import org.springframework.web.bind.annotation.ResponseBody;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Controller
 public class FrontendController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FrontendController.class);
+
     @Autowired
     private CalculateService calculateService;
     @Autowired
@@ -51,7 +53,6 @@ public class FrontendController {
                             HttpServletRequest request,
                             Model model) {
 
-
         // Überprüfe, ob die Postleitzahl in der Datenbank existiert
         Optional<Postcode> postcode = postcodeRepository.findFirstByPostcodeValue(postcodeValue);
         if (postcode.isEmpty()) {
@@ -59,12 +60,11 @@ public class FrontendController {
             return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
         }
 
-
         City selectedCity = cityRepository.findByPostcodes_PostcodeValue(postcodeValue);
         if (selectedCity == null) {
             String errorMessage = "Internet Fehler aufgetreten \"";
             model.addAttribute("error", errorMessage); // Fehlermeldung im Frontend
-            System.err.println("[WARNUNG] " + errorMessage + ": Keine Stadt zur angegebenen Postleitzahl: "+ postcodeValue + "\" gefunden."); // Log im Terminal
+            logger.warn("[WARNUNG] {}: Keine Stadt zur angegebenen Postleitzahl: {}", errorMessage, postcodeValue); // Log im Logger
             return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
         }
 
@@ -72,66 +72,60 @@ public class FrontendController {
         if (selectedRegion == null) {
             String errorMessage = "Internet Fehler aufgetreten \"";
             model.addAttribute("error", errorMessage); // Fehlermeldung im Frontend
-            System.err.println("[WARNUNG] " + errorMessage + ": Keine Region zur angegebenen Stadt: "+ selectedCity.getName() + "\" gefunden."); // Log im Terminal
+            logger.warn("[WARNUNG] {}: Keine Region zur angegebenen Stadt: {}", errorMessage, selectedCity.getName()); // Log im Logger
             return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
         }
 
         String regionName = selectedRegion.getName();
 
-
         // Hole das Fahrzeug-Objekt aus der Datenbank anhand der ID
         Vehicle selectedVehicle = vehicleRepository.findById(vehicle).orElse(null);
 
-
         LocalDateTime now = LocalDateTime.now();
-
 
         // Speichern des Fahrzeugnamens (anstatt der ID) in der Statistik-Tabelle
         assert selectedVehicle != null;
-        String vehicleName = selectedVehicle.getName();
-
 
         double premium;
         try {
             premium = calculateService.calculatePremium(km, km, vehicle, postcodeValue);
         } catch (Exception e) {
             model.addAttribute("error", "Fehler bei der Prämienberechnung: " + e.getMessage());
-            System.err.println("[WARNUNG]) Fehler bei der Prämienberechnung");
+            logger.warn("[WARNUNG] Fehler bei der Prämienberechnung: {}", e.getMessage());
             return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
         }
 
         // IP-Adresse aus dem Request-Header extrahieren
         String ipAddress = request.getRemoteAddr();
 
-// Falls die IP hinter einem Proxy ist, prüfe den "X-Forwarded-For"-Header
+        // Falls die IP hinter einem Proxy ist, prüfe den "X-Forwarded-For"-Header
         String forwardedFor = request.getHeader("X-Forwarded-For");
         if (forwardedFor != null && !forwardedFor.isEmpty()) {
             ipAddress = forwardedFor.split(",")[0]; // Erste IP aus der Liste
         }
 
-// Prüfe, ob eine gültige IP-Adresse vorhanden ist
+        // Prüfe, ob eine gültige IP-Adresse vorhanden ist
         if (ipAddress != null && !ipAddress.trim().isEmpty()) {
             try {
                 statisticsService.saveStatistics(now, postcodeValue, selectedVehicle.getName(), km, premium, ipAddress);
             } catch (Exception e) {
-                System.err.println("[WARNUNG] \"Fehler beim Speichern der Statistik.\" Grund: " + e.getMessage());
+                logger.warn("[WARNUNG] Fehler beim Speichern der Statistik: {}", e.getMessage());
             }
-
         } else {
-            System.out.println("[INFO] Keine IP-Adresse gefunden. Statistik wird nicht gespeichert.");
+            logger.info("[INFO] Keine IP-Adresse gefunden. Statistik wird nicht gespeichert.");
         }
 
         try {
             statisticsService.saveStatistics(now, postcodeValue, selectedVehicle.getName(), km, premium, ipAddress);
         } catch (Exception e) {
-            System.err.println("[WARNUNG] Fehler beim Speichern der Statistik: "+ e.getMessage());
+            logger.warn("[WARNUNG] Fehler beim Speichern der Statistik: {}", e.getMessage());
         }
 
         List<Vehicle> vehicleList = vehicleRepository.findAll();
         if (vehicleList.isEmpty()) {
             String errorMessage = "Interner Fehler aufgetreten \"";
             model.addAttribute("error", errorMessage);
-            System.err.println("[WARNUNG] " + errorMessage + ": Keine Fahrzeuge in der Datenbank gefunden."); // Log im Terminal
+            logger.warn("[WARNUNG] {}: Keine Fahrzeuge in der Datenbank gefunden.", errorMessage); // Log im Logger
 
             return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
         }
@@ -145,7 +139,6 @@ public class FrontendController {
 
         return "index";
     }
-
 
     @GetMapping("/filter-postcodes")
     @ResponseBody
@@ -182,7 +175,6 @@ public class FrontendController {
 
         // Optional: Alphabetische Sortierung der PostcodeListe nach Postleitzahl
         postcodeList.sort(Comparator.comparing(Postcode::getPostcodeValue));
-
 
         List<Vehicle> vehicleList = vehicleRepository.findAll();
 
