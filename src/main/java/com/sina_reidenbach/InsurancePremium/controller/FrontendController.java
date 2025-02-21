@@ -115,12 +115,6 @@ public class FrontendController {
             logger.info("[INFO] Keine IP-Adresse gefunden. Statistik wird nicht gespeichert.");
         }
 
-        try {
-            statisticsService.saveStatistics(now, postcodeValue, selectedVehicle.getName(), km, premium, ipAddress);
-        } catch (Exception e) {
-            logger.warn("[WARNUNG] Fehler beim Speichern der Statistik: {}", e.getMessage());
-        }
-
         List<Vehicle> vehicleList = vehicleRepository.findAll();
         if (vehicleList.isEmpty()) {
             String errorMessage = "Interner Fehler aufgetreten \"";

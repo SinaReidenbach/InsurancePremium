@@ -78,10 +78,10 @@ public class DatabaseService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<Anno_Kilometers> createAnno_Kilometers() {
         List<Anno_Kilometers> annoKilometersList = Arrays.asList(
-                new Anno_Kilometers(0, 1000, 0.5),
-                new Anno_Kilometers(1001, 5000, 1.0),
-                new Anno_Kilometers(5001, 10000, 1.5),
-                new Anno_Kilometers(10001, 20000, 2.0));
+                new Anno_Kilometers(0, 5000, 0.5),
+                new Anno_Kilometers(5001, 10000, 1.0),
+                new Anno_Kilometers(10001, 20000, 1.5),
+                new Anno_Kilometers(20001, Integer.MAX_VALUE, 2.0));
 
         for (Anno_Kilometers annoKilometers : annoKilometersList) {
             entityManager.persist(annoKilometers);
