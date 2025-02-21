@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -51,38 +52,91 @@ public class FrontendController {
                             Model model) {
 
 
-        // Hole das Region-Objekt aus der Datenbank anhand der Postleitzahl
+        // Überprüfe, ob die Postleitzahl in der Datenbank existiert
+        Optional<Postcode> postcode = postcodeRepository.findFirstByPostcodeValue(postcodeValue);
+        if (postcode.isEmpty()) {
+            model.addAttribute("errorMessage", "Bitte eine gültige Postleitzahl eingeben");
+            return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
+        }
+
+
         City selectedCity = cityRepository.findByPostcodes_PostcodeValue(postcodeValue);
+        if (selectedCity == null) {
+            String errorMessage = "Internet Fehler aufgetreten \"";
+            model.addAttribute("error", errorMessage); // Fehlermeldung im Frontend
+            System.err.println("[WARNUNG] " + errorMessage + ": Keine Stadt zur angegebenen Postleitzahl: "+ postcodeValue + "\" gefunden."); // Log im Terminal
+            return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
+        }
+
         Region selectedRegion = regionRepository.findByCities_Name(selectedCity.getName());
+        if (selectedRegion == null) {
+            String errorMessage = "Internet Fehler aufgetreten \"";
+            model.addAttribute("error", errorMessage); // Fehlermeldung im Frontend
+            System.err.println("[WARNUNG] " + errorMessage + ": Keine Region zur angegebenen Stadt: "+ selectedCity.getName() + "\" gefunden."); // Log im Terminal
+            return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
+        }
+
         String regionName = selectedRegion.getName();
+
 
         // Hole das Fahrzeug-Objekt aus der Datenbank anhand der ID
         Vehicle selectedVehicle = vehicleRepository.findById(vehicle).orElse(null);
 
 
         LocalDateTime now = LocalDateTime.now();
-        System.out.println("Aktuelles Datum und Uhrzeit: " + now);
 
 
         // Speichern des Fahrzeugnamens (anstatt der ID) in der Statistik-Tabelle
+        assert selectedVehicle != null;
         String vehicleName = selectedVehicle.getName();
 
-        double premium = calculateService.calculatePremium(km, km, vehicle, postcodeValue);
+
+        double premium;
+        try {
+            premium = calculateService.calculatePremium(km, km, vehicle, postcodeValue);
+        } catch (Exception e) {
+            model.addAttribute("error", "Fehler bei der Prämienberechnung: " + e.getMessage());
+            System.err.println("[WARNUNG]) Fehler bei der Prämienberechnung");
+            return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
+        }
+
         // IP-Adresse aus dem Request-Header extrahieren
         String ipAddress = request.getRemoteAddr();
 
-        // Falls die IP hinter einem Proxy ist, die "X-Forwarded-For"-Header prüfen
+// Falls die IP hinter einem Proxy ist, prüfe den "X-Forwarded-For"-Header
         String forwardedFor = request.getHeader("X-Forwarded-For");
         if (forwardedFor != null && !forwardedFor.isEmpty()) {
-            ipAddress = forwardedFor.split(",")[0]; // Nimmt die erste IP aus der Liste
+            ipAddress = forwardedFor.split(",")[0]; // Erste IP aus der Liste
         }
-        statisticsService.saveStatistics(now, postcodeValue, vehicleName, km, premium, ipAddress);
 
+// Prüfe, ob eine gültige IP-Adresse vorhanden ist
+        if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+            try {
+                statisticsService.saveStatistics(now, postcodeValue, selectedVehicle.getName(), km, premium, ipAddress);
+            } catch (Exception e) {
+                System.err.println("[WARNUNG] \"Fehler beim Speichern der Statistik.\" Grund: " + e.getMessage());
+            }
+
+        } else {
+            System.out.println("[INFO] Keine IP-Adresse gefunden. Statistik wird nicht gespeichert.");
+        }
+
+        try {
+            statisticsService.saveStatistics(now, postcodeValue, selectedVehicle.getName(), km, premium, ipAddress);
+        } catch (Exception e) {
+            System.err.println("[WARNUNG] Fehler beim Speichern der Statistik: "+ e.getMessage());
+        }
 
         List<Vehicle> vehicleList = vehicleRepository.findAll();
+        if (vehicleList.isEmpty()) {
+            String errorMessage = "Interner Fehler aufgetreten \"";
+            model.addAttribute("error", errorMessage);
+            System.err.println("[WARNUNG] " + errorMessage + ": Keine Fahrzeuge in der Datenbank gefunden."); // Log im Terminal
 
-        // Alphabetische Sortierung der Fahrzeugliste nach Fahrzeugname
-        Collections.sort(vehicleList, Comparator.comparing(Vehicle::getName));
+            return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
+        }
+
+        vehicleList.sort(Comparator.comparing(Vehicle::getName));
 
         // Werte ins Model packen
         model.addAttribute("premium", String.format("%.2f", premium) + " €"); // Formatierung mit zwei Nachkommastellen
@@ -96,16 +150,24 @@ public class FrontendController {
     @GetMapping("/filter-postcodes")
     @ResponseBody
     public String filterPostcodes(@RequestParam String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return "<option value=\"\">Keine Postleitzahl eingegeben</option>";
+        }
+
         List<Postcode> filteredPostcodes = postcodeRepository.findAll().stream()
                 .filter(postcode -> postcode.getPostcodeValue().startsWith(input))
-                .collect(Collectors.toList());
+                .toList();
+
+        if (filteredPostcodes.isEmpty()) {
+            return "<option value=\"\">Keine Postleitzahlen gefunden</option>";
+        }
 
         StringBuilder optionsHtml = new StringBuilder();
         for (Postcode postcode : filteredPostcodes) {
-            optionsHtml.append("<option value=\"" + postcode.getPostcodeValue() + "\">" + postcode.getPostcodeValue() + "</option>");
+            optionsHtml.append("<option value=\"").append(postcode.getPostcodeValue()).append("\">").append(postcode.getPostcodeValue()).append("</option>");
         }
 
-        return optionsHtml.toString(); // Gibt die Optionen als HTML zurück
+        return optionsHtml.toString();
     }
 
     @GetMapping("/")
@@ -119,13 +181,13 @@ public class FrontendController {
         List<Postcode> postcodeList = postcodeRepository.findAll();
 
         // Optional: Alphabetische Sortierung der PostcodeListe nach Postleitzahl
-        Collections.sort(postcodeList, Comparator.comparing(Postcode::getPostcodeValue));
+        postcodeList.sort(Comparator.comparing(Postcode::getPostcodeValue));
 
 
         List<Vehicle> vehicleList = vehicleRepository.findAll();
 
         // Alphabetische Sortierung der Fahrzeugliste nach Fahrzeugname
-        Collections.sort(vehicleList, Comparator.comparing(Vehicle::getName));
+        vehicleList.sort(Comparator.comparing(Vehicle::getName));
 
         // Übergabe der PLZ-Liste und Fahrzeugliste an das Template
         model.addAttribute("postcodeList", postcodeList);
