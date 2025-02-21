@@ -8,12 +8,15 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -21,8 +24,12 @@ import java.util.*;
 
 @Service
 public class DatabaseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
+
     @Autowired
     private ApplicationContext applicationContext;
+
     private final List<String[]> data = new ArrayList<>();
 
     @Autowired
@@ -41,7 +48,7 @@ public class DatabaseService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
-        System.out.println("✅ DatabaseService gestartet!");
+        logger.info("✅ DatabaseService gestartet!");
         readCSV();
         DatabaseService proxy = applicationContext.getBean(DatabaseService.class);
         proxy.saveDataTransactional(); // Aufruf über Proxy
@@ -64,7 +71,7 @@ public class DatabaseService {
                 }
             }
         } catch (IOException | CsvException e) {
-            System.out.println("❌ Fehler beim Lesen der Datei: " + e.getMessage());
+            logger.error("❌ Fehler beim Lesen der Datei: {}", e.getMessage());
         }
     }
 
@@ -176,17 +183,17 @@ public class DatabaseService {
 
         try {
             if (data.isEmpty()) {
-                System.out.println("⚠️ Keine Daten zum Speichern!");
+                logger.warn("⚠️ Keine Daten zum Speichern!");
                 return;
             }
 
             List<Anno_Kilometers> annoKilometersList = createAnno_Kilometers();
-            System.out.println("🚀 Tabelle Anno_kilometers wurde erstellt und befüllt");
+            logger.info("🚀 Tabelle Anno_kilometers wurde erstellt und befüllt");
             List<Vehicle> vehicleList = createVehicle();
-            System.out.println("🚀 Tabelle Vehicle wurde erstellt und befüllt");
+            logger.info("🚀 Tabelle Vehicle wurde erstellt und befüllt");
             List<Region> regionList = createRegion();
-            System.out.println("🚀 Tabelle Region wurde erstellt und befüllt");
-            System.out.println("🚀 einen Moment bitte....");
+            logger.info("🚀 Tabelle Region wurde erstellt und befüllt");
+            logger.info("🚀 einen Moment bitte....");
 
             for (String[] row : data) {
                 String regionName = row[2].replace("\"", "").trim();
@@ -194,20 +201,20 @@ public class DatabaseService {
                 String cityName = row[7].replace("\"", "").trim();
 
                 // Überprüfen, ob die Postleitzahl leer oder ungültig ist
-                if (value.isEmpty() || value.length() != 5 || !value.matches("\\d{5}")) { // Nur 5-stellige PLZ
-                    System.err.println("⚠️ Ungültige oder fehlende Postleitzahl: " + value);
+                if (value.length() != 5 || !value.matches("\\d{5}")) { // Nur 5-stellige PLZ
+                    logger.warn("⚠️ Ungültige oder fehlende Postleitzahl: {}", value);
                 }
 
                 // Überprüfen, ob Stadt und Region ebenfalls fehlen
                 if (regionName.isEmpty() || cityName.isEmpty()) {
-                    System.err.println("⚠️ Fehlende Region oder Stadt für Postleitzahl: " + value);
+                    logger.warn("⚠️ Fehlende Region oder Stadt für Postleitzahl: {}", value);
                 }
-//ANPASSEN AUF DIE NEUE CREATEREGION ODER RÜCKGÄNGIG
+
                 // Wenn alles gültig ist, die Region, Stadt und Postleitzahl speichern
                 if (!regionName.isEmpty() && !cityName.isEmpty() && !value.isEmpty() && value.matches("\\d{5}")) {
                     Optional<Region> optionalRegion = regionRepository.findByName(regionName);
                     if (optionalRegion.isEmpty()) {
-                        System.err.println("⚠️ Region nicht gefunden: " + regionName);
+                        logger.warn("⚠️ Region nicht gefunden: {}", regionName);
                         continue; // Falls die Region nicht existiert, wird dieser Datensatz übersprungen
                     }
                     Region region = optionalRegion.get();
@@ -215,15 +222,14 @@ public class DatabaseService {
                     Postcode postcode = createPostcode(value, city, region);
                 }
             }
-            System.out.println("🚀 Tabellen Postcode und City wurden erstellt und befüllt");
+            logger.info("🚀 Tabellen Postcode und City wurden erstellt und befüllt");
             entityManager.flush();
             entityManager.clear();
 
-            System.out.println("✅ Alle Daten wurden erfolgreich gespeichert!");
+            logger.info("✅ Alle Daten wurden erfolgreich gespeichert!");
 
         } catch (Exception e) {
-            System.out.println("❌ Fehler beim Speichern der Daten: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("❌ Fehler beim Speichern der Daten: {}", e.getMessage(), e);
         }
     }
 }
