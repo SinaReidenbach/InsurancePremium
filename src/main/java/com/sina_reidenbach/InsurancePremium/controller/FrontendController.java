@@ -12,17 +12,16 @@ import com.sina_reidenbach.InsurancePremium.repository.PostcodeRepository;
 import com.sina_reidenbach.InsurancePremium.repository.RegionRepository;
 import com.sina_reidenbach.InsurancePremium.repository.VehicleRepository;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import com.sina_reidenbach.InsurancePremium.service.StatisticsService;
 import java.time.LocalDateTime;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
+@Hidden
 public class FrontendController {
 
     private static final Logger logger = LoggerFactory.getLogger(FrontendController.class);
