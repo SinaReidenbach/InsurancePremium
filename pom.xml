@@ -89,7 +89,11 @@
 			<artifactId>opencsv</artifactId>
 			<version>5.9</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.7.0</version> <!-- Achte darauf, eine aktuelle Version zu verwenden -->
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
 @RestController
@@ -31,6 +34,7 @@ public class ThirdPartyController {
     @Autowired
     private PostcodeRepository postcodeRepository;
 
+    @Operation(summary = "Gibt mögliche Optionen für die Fahrzeugtypen aus")
     @GetMapping("/api/options/vehicles")
     public ResponseEntity<VehicleResponse> getVehicles() {
         VehicleResponse response = new VehicleResponse();
@@ -70,6 +74,8 @@ public class ThirdPartyController {
             return ResponseEntity.status(500).body(response);  // 500 Internal Server Error
         }
     }
+
+    @Operation(summary = "Gibt mögliche Optionen für die Regionen der Zulassungsstellen aus")
     @GetMapping("/api/options/regions")
     public RegionResponse getRegions() {
         RegionResponse response = new RegionResponse();
@@ -85,6 +91,7 @@ public class ThirdPartyController {
         return response;
     }
 
+    @Operation(summary = "Gibt die Faktorbereiche für die Kilometer Ranges aus")
     @GetMapping("/api/options/annoKilometers")
     public AnnoKilometersResponse getAnnoKilometers() {
         AnnoKilometersResponse response = new AnnoKilometersResponse();
@@ -101,10 +108,12 @@ public class ThirdPartyController {
         return response;
     }
 
+    @Operation(summary = "Berechnet die Prämie mit den entsprechenden Optionen")
     @PostMapping("/api/calculate")
-    public ResponseEntity<?> calculatePremium(@RequestBody Map<String, Object> premiumRequest) {
+    public ResponseEntity<?> calculatePremium(@org.springframework.web.bind.annotation.RequestBody Map<String, Object> premiumRequest) {
+
+        List<String> errorMessages = new ArrayList<>();
         PremiumResponse response = new PremiumResponse();
-        List<String> errorMessages = new ArrayList<>(); // Liste für Fehlernachrichten
 
         try {
             // Eingabewerte extrahieren
@@ -113,59 +122,43 @@ public class ThirdPartyController {
             Integer annoKilometers = (Integer) premiumRequest.get("annoKilometers");
             String postcode = (String) premiumRequest.get("postcode");
 
-            // Eingabewerte validieren
-            if (vehicleId == null) {
-                errorMessages.add("vehicleId muss angegeben werden.");
-            }
-            if (annoKilometers == null) {
-                errorMessages.add("annoKilometers muss angegeben werden.");
-            }
-            if (postcode == null) {
-                errorMessages.add("postcode muss angegeben werden.");
-            }
-
-            // Falls es Fehler gibt, returne sie alle
-            if (!errorMessages.isEmpty()) {
-                ErrorResponse errorResponse = new ErrorResponse("Fehlerhafte Eingabewerte", String.join(", ", errorMessages));
-                return ResponseEntity.badRequest().body(errorResponse);
-            }
+            // Eingaben validieren
+            if (vehicleId == null) errorMessages.add("vehicleId muss angegeben werden.");
+            if (annoKilometers == null) errorMessages.add("annoKilometers muss angegeben werden.");
+            if (postcode == null) errorMessages.add("postcode muss angegeben werden.");
 
             // Fahrzeug prüfen
-            Optional<Vehicle> vehicle = vehicleRepository.findById(vehicleId);
-            if (vehicle.isEmpty()) {
+            if (vehicleId != null && vehicleRepository.findById(vehicleId).isEmpty()) {
                 errorMessages.add("Kein Fahrzeug mit der angegebenen ID gefunden.");
             }
 
             // Postleitzahl prüfen
-            Optional<Postcode> postcodeEntity = postcodeRepository.findFirstByPostcodeValue(postcode);
-            if (postcodeEntity.isEmpty()) {
+            if (postcode != null && postcodeRepository.findFirstByPostcodeValue(postcode).isEmpty()) {
                 errorMessages.add("Kein Postleitzahl-Eintrag für den angegebenen Wert gefunden.");
             }
 
             // Kilometer validieren
-            if (annoKilometers <= 0) {
+            if (annoKilometers != null && annoKilometers <= 0) {
                 errorMessages.add("Kilometerzahl muss größer als 0 sein.");
             }
 
-            // Wenn Fehler gefunden wurden, alle Fehler in einer Antwort zurückgeben
+            // Falls Fehler vorhanden sind, gib alle zurück
             if (!errorMessages.isEmpty()) {
-                ErrorResponse errorResponse = new ErrorResponse("Fehlerhafte Eingabewerte", String.join(", ", errorMessages));
-                return ResponseEntity.badRequest().body(errorResponse);
+                return ResponseEntity.badRequest().body(new ErrorResponse("Fehlerhafte Eingabewerte", String.join(", ", errorMessages)));
             }
 
-            // Berechnung der Prämie
+            // Prämie berechnen
             double premiumAmount = calculateService.calculatePremium(annoKilometers, annoKilometers, vehicleId, postcode);
 
-            // Erfolgreiche Antwort mit der berechneten Prämie
+            // Antwort erstellen
             Map<String, Object> premium = new HashMap<>();
             premium.put("premium", premiumAmount);
             response.setPremium(premium);
 
-            return ResponseEntity.ok(response);  // Erfolgreiche Antwort
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse("Serverfehler", "Ein unerwarteter Fehler ist aufgetreten");
-            return ResponseEntity.status(500).body(errorResponse);
+            return ResponseEntity.status(500).body(new ErrorResponse("Serverfehler", "Ein unerwarteter Fehler ist aufgetreten"));
         }
     }
 

@@ -1,5 +1,6 @@
 package com.sina_reidenbach.InsurancePremium.controller;
 
+import java.util.Collections;
 import java.util.Comparator;
 
 import com.sina_reidenbach.InsurancePremium.model.City;
@@ -124,7 +125,7 @@ public class FrontendController {
             return showHomePage(null, model); // Zurück zur Startseite mit Fehlermeldung
         }
 
-        vehicleList.sort(Comparator.comparing(Vehicle::getName));
+        Collections.sort(vehicleList, Comparator.comparing(Vehicle::getName));
 
         // Werte ins Model packen
         model.addAttribute("premium", String.format("%.2f", premium) + " €"); // Formatierung mit zwei Nachkommastellen

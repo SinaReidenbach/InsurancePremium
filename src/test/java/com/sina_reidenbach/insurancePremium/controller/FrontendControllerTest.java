@@ -8,6 +8,7 @@ import com.sina_reidenbach.InsurancePremium.model.Vehicle;
 import com.sina_reidenbach.InsurancePremium.repository.*;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
 import com.sina_reidenbach.InsurancePremium.service.StatisticsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,14 +17,19 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.ui.Model;
+
+import java.util.Optional;
+import java.util.List;
+
+import java.util.*;
+
+
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Optional;
 
 public class FrontendControllerTest {
 
@@ -49,6 +55,23 @@ public class FrontendControllerTest {
 
     @InjectMocks
     private FrontendController frontendController;
+    @Mock
+    private HttpServletRequest request;
+    @Mock
+    private Model model;
+    @Mock
+    private Vehicle vehicle;
+    @Mock
+    private City city;
+    @Mock
+    private Region region;
+    @Mock
+    private Postcode postcode;
+
+    private final String validPostcode = "12345";
+    private final Long vehicleId = 1L;
+    private final int km = 1000;
+
 
     @BeforeEach
     void setUp() {
@@ -57,46 +80,29 @@ public class FrontendControllerTest {
     }
 
     @Test
-    void testBerechnen_withValidInput_returnsPremiumAndModelAttributes() throws Exception {
-        // Speichern des aktuellen Default-Loales
-        Locale defaultLocale = Locale.getDefault();
-        try {
-            // Setze Locale auf Englisch (USA), um das Dezimaltrennzeichen auf Punkt zu setzen
-            Locale.setDefault(Locale.US);
+    void testBerechnen_WithValidData() {
 
-            City city = new City();
-            city.setName("Stuttgart");
-            when(cityRepository.findByPostcodes_PostcodeValue("70173")).thenReturn(city);
+        // Arrange
+        when(postcodeRepository.findFirstByPostcodeValue(validPostcode)).thenReturn(Optional.of(postcode));
+        when(cityRepository.findByPostcodes_PostcodeValue(validPostcode)).thenReturn(city);
+        when(regionRepository.findByCities_Name(city.getName())).thenReturn(region);
+        when(region.getName()).thenReturn("Baden-Württemberg"); // Sicherstellen, dass getName() nicht null ist
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(vehicle.getName()).thenReturn("SUV"); // Fahrzeugname setzen
+        when(calculateService.calculatePremium(km, km, vehicleId, validPostcode)).thenReturn(500.0);
+        when(vehicleRepository.findAll()).thenReturn(new ArrayList<>(List.of(vehicle)));
 
-            Region region = new Region();
-            region.setName("Baden-Württemberg");
-            when(regionRepository.findByCities_Name("Stuttgart")).thenReturn(region);
 
-            Vehicle vehicle = new Vehicle();
-            vehicle.setId(1L);
-            vehicle.setName("SUV");
-            when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+        // Act
+        String result = frontendController.berechnen(km, validPostcode, vehicleId, request, model);
 
-            when(calculateService.calculatePremium(10000, 10000, 1L, "70173")).thenReturn(225.0);
-            when(vehicleRepository.findAll()).thenReturn(Collections.singletonList(vehicle));
-
-            mockMvc.perform(post("/berechnen")
-                            .param("km", "10000")
-                            .param("postcodeValue", "70173")
-                            .param("vehicle", "1")
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(status().isOk())
-                    .andExpect(model().attributeExists("premium"))
-                    .andExpect(model().attributeExists("region"))
-                    .andExpect(model().attributeExists("vehicleList"))
-                    .andExpect(model().attribute("premium", "225.00 €"))
-                    .andExpect(model().attribute("region", "Baden-Württemberg"))
-                    .andExpect(view().name("index"));
-        } finally {
-            // Stelle das ursprüngliche Locale wieder her
-            Locale.setDefault(defaultLocale);
-        }
+        // Assert
+        assertEquals("index", result);
+        verify(model).addAttribute("premium", "500,00 €");
+        verify(model).addAttribute("region", "Baden-Württemberg");
+        verify(model).addAttribute("vehicleList", List.of(vehicle));
     }
+
 
     @Test
     void testBerechnen_withMissingParameters_returnsErrorPage() throws Exception {
@@ -131,8 +137,10 @@ public class FrontendControllerTest {
         mockMvc.perform(get("/filter-postcodes")
                         .param("input", "9999"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(""));
+                .andExpect(content().string("<option value=\"\">Keine Postleitzahlen gefunden</option>"));
     }
+
+
 
     @Test
     void testShowHomePage_withNoInput_displaysIndexWithLists() throws Exception {

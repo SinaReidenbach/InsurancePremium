@@ -102,20 +102,25 @@ public class ThirdPartyControllerTest {
     }
 
 
-    // Test für die Premiumberechnung
     @Test
     void testCalculatePremium() throws Exception {
+        // Anfrage-Body vorbereiten
         Map<String, Object> premiumRequest = new HashMap<>();
         premiumRequest.put("vehicleId", 1L);
         premiumRequest.put("annoKilometers", 10000);
         premiumRequest.put("postcode", "70173");
 
+        // Mocking der Repository-Rückgaben
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(new Vehicle()));
+        when(postcodeRepository.findFirstByPostcodeValue("70173")).thenReturn(Optional.of(new Postcode()));
         when(calculateService.calculatePremium(10000, 10000, 1L, "70173")).thenReturn(225.0);
 
+        // POST-Anfrage ausführen und Ergebnis überprüfen
         mockMvc.perform(post("/api/calculate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(premiumRequest)))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.premium.premium").value(225.0));
     }
 }
