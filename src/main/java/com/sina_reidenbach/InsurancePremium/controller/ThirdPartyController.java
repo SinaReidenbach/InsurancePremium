@@ -5,10 +5,17 @@ import com.sina_reidenbach.InsurancePremium.model.*;
 import com.sina_reidenbach.InsurancePremium.repository.*;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +41,9 @@ public class ThirdPartyController {
     @Autowired
     private PostcodeRepository postcodeRepository;
 
-    @Operation(summary = "Gibt mögliche Optionen für die Fahrzeugtypen aus")
+    @Operation(
+            tags = "Fahrzeugtypen",
+            description = "Gibt mögliche Optionen für die Fahrzeugtypen aus und die entsprechenden Prämien Faktoren für die Berechnung")
     @GetMapping("/api/options/vehicles")
     public ResponseEntity<VehicleResponse> getVehicles() {
         VehicleResponse response = new VehicleResponse();
@@ -75,7 +84,9 @@ public class ThirdPartyController {
         }
     }
 
-    @Operation(summary = "Gibt mögliche Optionen für die Regionen der Zulassungsstellen aus")
+    @Operation(
+            tags = "Ansässigkeit Zulassungsstelle",
+            description = "Gibt mögliche Optionen für die Regionen der Zulassungsstellen aus und die entsprechenden Prämien Faktoren für die Berechnung")
     @GetMapping("/api/options/regions")
     public RegionResponse getRegions() {
         RegionResponse response = new RegionResponse();
@@ -91,7 +102,7 @@ public class ThirdPartyController {
         return response;
     }
 
-    @Operation(summary = "Gibt die Faktorbereiche für die Kilometer Ranges aus")
+    @Operation(summary = "Gibt die Optionen für die Kilometer Ranges aus und die entsprechenden Prämien Faktoren für die Berechnung")
     @GetMapping("/api/options/annoKilometers")
     public AnnoKilometersResponse getAnnoKilometers() {
         AnnoKilometersResponse response = new AnnoKilometersResponse();
@@ -108,7 +119,23 @@ public class ThirdPartyController {
         return response;
     }
 
-    @Operation(summary = "Berechnet die Prämie mit den entsprechenden Optionen")
+    @Operation(
+            tags = "Prämienberechnung",
+            description = "Berechnet die Prämie über die gesendeten Parameter Vehicle, Postcode und annoKilometers",
+            responses = {
+                    @ApiResponse(
+                            description = "Prämienberechnung erfolgt und zurückgesendet",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = {
+                                            @ExampleObject(name = "Beispiel 2", value = "{\"vehicleTypeId\": 14, \"postcode\": \"67890\", \"annoKilometers\": 5000}")
+                                    },
+                                    schema = @Schema(implementation = PremiumResponse.class)
+                            )
+                    )
+            }
+    )
     @PostMapping("/api/calculate")
     public ResponseEntity<?> calculatePremium(@org.springframework.web.bind.annotation.RequestBody Map<String, Object> premiumRequest) {
 
