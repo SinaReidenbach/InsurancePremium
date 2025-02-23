@@ -80,7 +80,7 @@ public class CalculateService {
             return premiumFactor * basis;
         } catch (RuntimeException ex) {
             logger.error("Fehler bei der Berechnung der Prämie: {}", ex.getMessage());
-            throw ex;  // Exception weiterwerfen, um sie oben weiterzuleiten oder zu loggen
+            throw ex;
         }
     }
 }

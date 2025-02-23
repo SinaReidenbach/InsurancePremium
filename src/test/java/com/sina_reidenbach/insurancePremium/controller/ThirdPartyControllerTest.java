@@ -45,7 +45,6 @@ public class ThirdPartyControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // Test für die Fahrzeugoptionen
     @Test
     void testGetVehicles() throws Exception {
         List<Vehicle> vehicles = Arrays.asList(
@@ -57,13 +56,12 @@ public class ThirdPartyControllerTest {
         mockMvc.perform(get("/api/options/vehicles"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.vehicles").exists())
-                .andExpect(jsonPath("$.vehicles['1'].vehicleName").value("SUV"))  // Änderung hier
-                .andExpect(jsonPath("$.vehicles['1'].factor").value(1.5))          // Änderung hier
-                .andExpect(jsonPath("$.vehicles['2'].vehicleName").value("Sedan")) // Änderung hier
-                .andExpect(jsonPath("$.vehicles['2'].factor").value(1.2));        // Änderung hier
+                .andExpect(jsonPath("$.vehicles['1'].vehicleName").value("SUV"))
+                .andExpect(jsonPath("$.vehicles['1'].factor").value(1.5))
+                .andExpect(jsonPath("$.vehicles['2'].vehicleName").value("Sedan"))
+                .andExpect(jsonPath("$.vehicles['2'].factor").value(1.2));
     }
 
-    // Test für die Regionsoptionen
     @Test
     void testGetRegions() throws Exception {
         List<Region> regions = new ArrayList<>();
@@ -81,7 +79,6 @@ public class ThirdPartyControllerTest {
     }
 
 
-    // Test für die Kilometeroptionen
     @Test
     void testGetAnnoKilometers() throws Exception {
         List<Anno_Kilometers> annoKilometers = Arrays.asList(
@@ -93,10 +90,10 @@ public class ThirdPartyControllerTest {
         mockMvc.perform(get("/api/options/annoKilometers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.annoKilometers").exists())
-                .andExpect(jsonPath("$.annoKilometers[0].min").value(0))     // Korrektur hier
+                .andExpect(jsonPath("$.annoKilometers[0].min").value(0))
                 .andExpect(jsonPath("$.annoKilometers[0].max").value(1000))
                 .andExpect(jsonPath("$.annoKilometers[0].factor").value(0.5))
-                .andExpect(jsonPath("$.annoKilometers[1].min").value(1001))  // Korrektur hier
+                .andExpect(jsonPath("$.annoKilometers[1].min").value(1001))
                 .andExpect(jsonPath("$.annoKilometers[1].max").value(10000))
                 .andExpect(jsonPath("$.annoKilometers[1].factor").value(1.0));
     }
@@ -104,18 +101,15 @@ public class ThirdPartyControllerTest {
 
     @Test
     void testCalculatePremium() throws Exception {
-        // Anfrage-Body vorbereiten
         Map<String, Object> premiumRequest = new HashMap<>();
         premiumRequest.put("vehicleId", 1L);
         premiumRequest.put("annoKilometers", 10000);
         premiumRequest.put("postcode", "70173");
 
-        // Mocking der Repository-Rückgaben
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(new Vehicle()));
         when(postcodeRepository.findFirstByPostcodeValue("70173")).thenReturn(Optional.of(new Postcode()));
         when(calculateService.calculatePremium(10000, 10000, 1L, "70173")).thenReturn(225.0);
 
-        // POST-Anfrage ausführen und Ergebnis überprüfen
         mockMvc.perform(post("/api/calculate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(premiumRequest)))

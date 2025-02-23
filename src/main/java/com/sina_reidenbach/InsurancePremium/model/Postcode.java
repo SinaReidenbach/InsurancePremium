@@ -16,6 +16,7 @@ public class Postcode {
     @JoinColumn(name = "region_id")
     private Region region;
 
+    // Constructor
     public Postcode() {
     }
 

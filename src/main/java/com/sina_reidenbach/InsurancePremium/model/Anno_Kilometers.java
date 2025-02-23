@@ -9,11 +9,12 @@ import jakarta.persistence.Id;
 public class Anno_Kilometers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;       // Primärschlüssel
-    private int min;      // Mindest-Kilometerstand
-    private int max;      // Maximal-Kilometerstand
-    private double factor;   // Faktor
+    private Long id;
+    private int min;
+    private int max;
+    private double factor;
 
+    // Constructor
     public Anno_Kilometers(int min, int max, double factor) {
         this.min = min;
         this.max = max;

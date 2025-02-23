@@ -8,7 +8,7 @@ public class InsurancePremiumApplication {
 
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(InsurancePremiumApplication.class);
-		app.setAdditionalProfiles("prod");  // Setzt das Profil auf 'prod'
+		app.setAdditionalProfiles("prod");
 		app.run(args);
 	}
 }

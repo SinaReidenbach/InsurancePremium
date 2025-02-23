@@ -11,7 +11,6 @@ import java.util.Optional;
 public interface RegionRepository extends JpaRepository<Region, Long> {
     Optional<Region> findByName(String name);
     Region findByCities_Name(String cityName);
-    //Region findByCities_City(City city);
     @Query("SELECT r FROM Region r " +
             "JOIN r.cities c " +
             "JOIN c.postcodes p " +

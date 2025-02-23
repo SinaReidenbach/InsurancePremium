@@ -11,9 +11,10 @@ public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;  // Name des Fahrzeugs (z.B. "Kleinwagen", "SUV", "Limousine")
-    private double factor;  // Faktor für den Fahrzeugtyp
+    private String name;
+    private double factor;
 
+    // Constructor
     public Vehicle(String name, double factor){
         this.name = name;
         this.factor = factor;
@@ -29,7 +30,6 @@ public class Vehicle {
 
 
     // Getter und Setter
-
     public double getFactor() {
         return factor;
     }

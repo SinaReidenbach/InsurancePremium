@@ -51,7 +51,7 @@ public class DatabaseService {
         logger.info("✅ DatabaseService gestartet!");
         readCSV();
         DatabaseService proxy = applicationContext.getBean(DatabaseService.class);
-        proxy.saveDataTransactional(); // Aufruf über Proxy
+        proxy.saveDataTransactional();
     }
 
     public void readCSV() {
@@ -64,9 +64,9 @@ public class DatabaseService {
             for (String[] values : rows) {
                 if (firstLine) {
                     firstLine = false;
-                    continue; // Header überspringen
+                    continue;
                 }
-                if (values.length > 7) { // Prüfen, ob genügend Spalten existieren
+                if (values.length > 7) {
                     data.add(values);
                 }
             }
@@ -200,22 +200,20 @@ public class DatabaseService {
                 String value = row[6].replace("\"", "").trim();
                 String cityName = row[7].replace("\"", "").trim();
 
-                // Überprüfen, ob die Postleitzahl leer oder ungültig ist
-                if (value.length() != 5 || !value.matches("\\d{5}")) { // Nur 5-stellige PLZ
+
+                if (value.length() != 5 || !value.matches("\\d{5}")) {
                     logger.warn("⚠️ Ungültige oder fehlende Postleitzahl: {}", value);
                 }
 
-                // Überprüfen, ob Stadt und Region ebenfalls fehlen
                 if (regionName.isEmpty() || cityName.isEmpty()) {
                     logger.warn("⚠️ Fehlende Region oder Stadt für Postleitzahl: {}", value);
                 }
 
-                // Wenn alles gültig ist, die Region, Stadt und Postleitzahl speichern
                 if (!regionName.isEmpty() && !cityName.isEmpty() && !value.isEmpty() && value.matches("\\d{5}")) {
                     Optional<Region> optionalRegion = regionRepository.findByName(regionName);
                     if (optionalRegion.isEmpty()) {
                         logger.warn("⚠️ Region nicht gefunden: {}", regionName);
-                        continue; // Falls die Region nicht existiert, wird dieser Datensatz übersprungen
+                        continue;
                     }
                     Region region = optionalRegion.get();
                     City city = createCity(cityName, region);

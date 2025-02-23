@@ -26,14 +26,12 @@ public class AnnoKilometersRepositoryTest {
 
     @Test
     void testFindByKmMinLessThanEqualAndKmMaxGreaterThanEqual() {
-        // Erstelle AnnoKilometers-Instanzen
         Anno_Kilometers annoKilometers1 = new Anno_Kilometers(0, 5000, 0.5);
         Anno_Kilometers annoKilometers2 = new Anno_Kilometers(5001, 10000, 1.0);
         Anno_Kilometers annoKilometers3 = new Anno_Kilometers(10001, 20000, 1.5);
         Anno_Kilometers annoKilometers4 = new Anno_Kilometers(20001, 99999, 2.0);
 
         for (int i = 0; i < 30000; i += 5000) {
-            // Bestimme die erwartete Instanz basierend auf `i`
             Anno_Kilometers expectedAnnoKilometers;
             if (i >= 0 && i <= 5000) {
                 expectedAnnoKilometers = annoKilometers1;
@@ -45,16 +43,13 @@ public class AnnoKilometersRepositoryTest {
                 expectedAnnoKilometers = annoKilometers4;
             }
 
-            // Mock das Verhalten der Repository-Methode, sodass sie genau das erwartete Objekt zurückgibt
             when(annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(i, i))
                     .thenReturn(List.of(expectedAnnoKilometers));
 
-            // Rufe die Methode auf
             List<Anno_Kilometers> result = annoKilometersRepository.findByMinLessThanEqualAndMaxGreaterThanEqual(i, i);
 
-            // Assertions
             assertNotNull(result);
-            assertEquals(1, result.size());  // Sicherstellen, dass genau ein Objekt zurückgegeben wird
+            assertEquals(1, result.size());
             assertEquals(expectedAnnoKilometers.getFactor(), result.get(0).getFactor());
         }
     }

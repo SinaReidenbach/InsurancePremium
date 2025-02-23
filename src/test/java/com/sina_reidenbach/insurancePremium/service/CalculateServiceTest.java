@@ -27,11 +27,11 @@ class CalculateServiceTest {
     private AnnoKilometersRepository annoKilometersRepository;
 
     @InjectMocks
-    private CalculateService calculateService; // Mockito injiziert die Mocks
+    private CalculateService calculateService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // Initialisiert alle @Mock-Annotationen
+        MockitoAnnotations.openMocks(this);
 
         Region region = new Region();
         region.setFactor(1.5);

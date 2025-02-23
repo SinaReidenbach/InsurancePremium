@@ -42,7 +42,7 @@ class RegionRepositoryTest {
     @Test
     void testFindByRegionNameNotFound() {
         Optional<Region> region = regionRepository.findByName("Bayern");
-        assertFalse(region.isPresent());  // Test für nicht vorhandene Region
+        assertFalse(region.isPresent());
     }
 
     @Test
@@ -57,7 +57,7 @@ class RegionRepositoryTest {
     @Test
     void testFindByCities_NameNotFound() {
         Region result = regionRepository.findByCities_Name("München");
-        assertNull(result);  // Test für nicht vorhandene Stadt
+        assertNull(result);
     }
 
     @Test
@@ -75,7 +75,7 @@ class RegionRepositoryTest {
     @Test
     void testFindByPostcodeValueStartingWithNotFound() {
         Optional<Region> region = regionRepository.findByPostcodeValueStartingWith("99999");
-        assertFalse(region.isPresent());  // Test für nicht vorhandenes Postcode-Präfix
+        assertFalse(region.isPresent());
     }
 
 }

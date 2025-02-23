@@ -11,15 +11,15 @@ import java.time.LocalDateTime;
 public class Statistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;            // Primärschlüssel
-    private LocalDateTime dateTime;  // LocalDateTime für das Datum
-    private String postcode;    // Postleitzahl
-    private String vehicle;     // Fahrzeugname
-    private int annokilometers; // Jährliche Kilometer
+    private Long id;
+    private LocalDateTime dateTime;
+    private String postcode;
+    private String vehicle;
+    private int annokilometers;
     private double premium;
     private String ipAddress;
 
-    // Standard-Konstruktor
+    // Constructor
     public Statistics() {
     }
 

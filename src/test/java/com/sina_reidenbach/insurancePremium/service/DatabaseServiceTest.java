@@ -66,7 +66,6 @@ class DatabaseServiceTest {
         vehicleRepository.deleteAll();
         annoKilometersRepository.deleteAll();
 
-        System.err.println("Alle Daten gelöscht");
 
         MockitoAnnotations.openMocks(this);
         doNothing().when(entityManager).persist(any(Anno_Kilometers.class));
@@ -137,12 +136,8 @@ class DatabaseServiceTest {
     @Transactional
     @Test
     void testSaveDataTransactional() {
-        // Methode aufrufen
         databaseService.saveDataTransactional();
 
-        System.err.println("Alle Regionen und Städte gespeichert");
-
-        // Überprüfen, ob die Daten in der Datenbank gespeichert wurden
         Optional<City> city = cityRepository.findFirstByName("Breisach am Rhein");
         assertTrue(city.isPresent(), "Die Stadt 'Breisach am Rhein' sollte gespeichert sein.");
 

@@ -18,6 +18,7 @@ public class City {
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Postcode> postcodes;
 
+    //Constructor
     public City() {}
 
     public City(String name) {

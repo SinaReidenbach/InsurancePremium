@@ -27,7 +27,6 @@ class StatisticsServiceTest {
 
     @Test
     void testSaveStatistics() {
-        // Arrange
         LocalDateTime dateTime = LocalDateTime.now();
         String postcode = "12345";
         String vehicleName = "TestVehicle";
@@ -35,17 +34,13 @@ class StatisticsServiceTest {
         double premium = 200.0;
         String ipAddress = "192.168.0.1";
 
-        // Act
         statisticsService.saveStatistics(dateTime, postcode, vehicleName, km, premium, ipAddress);
 
-        // Assert
-        // Überprüfen, ob die save-Methode des Repositories aufgerufen wurde
         verify(statisticsRepository, times(1)).save(any(Statistics.class));
     }
 
     @Test
     void testSaveStatisticsWithNullValues() {
-        // Arrange
         LocalDateTime dateTime = LocalDateTime.now();
         String postcode = null;
         String vehicleName = "TestVehicle";
@@ -53,13 +48,11 @@ class StatisticsServiceTest {
         double premium = 200.0;
         String ipAddress = "192.168.0.1";
 
-        // Act und Assert: Erwartung, dass bei null-Werten keine Exception geworfen wird
         assertDoesNotThrow(() -> statisticsService.saveStatistics(dateTime, postcode, vehicleName, km, premium, ipAddress));
     }
 
     @Test
     void testSaveStatisticsCallsRepositoryWithCorrectData() {
-        // Arrange
         LocalDateTime dateTime = LocalDateTime.now();
         String postcode = "54321";
         String vehicleName = "VehicleX";
@@ -67,11 +60,8 @@ class StatisticsServiceTest {
         double premium = 150.0;
         String ipAddress = "10.0.0.1";
 
-        // Act
         statisticsService.saveStatistics(dateTime, postcode, vehicleName, km, premium, ipAddress);
 
-        // Assert
-        // Überprüfen, ob save mit den richtigen Parametern aufgerufen wurde
         verify(statisticsRepository).save(argThat(statistics ->
                 statistics.getDateTime().equals(dateTime) &&
                         statistics.getPostcode().equals(postcode) &&

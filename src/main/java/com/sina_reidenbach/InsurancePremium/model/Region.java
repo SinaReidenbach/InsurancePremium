@@ -16,8 +16,7 @@ public class Region {
     private Set<City> cities;
 
 
-    //Konstruktor
-
+    // Constructor
     public Region(String name, double factor) {
         this.name = name;
         this.factor = factor;

@@ -5,6 +5,7 @@ import com.sina_reidenbach.InsurancePremium.model.*;
 import com.sina_reidenbach.InsurancePremium.repository.*;
 import com.sina_reidenbach.InsurancePremium.service.CalculateService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.ParameterMetaData;
 import java.util.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,17 +53,15 @@ public class ThirdPartyController {
         try {
             List<Vehicle> vehicles = vehicleRepository.findAll();
             if (vehicles.isEmpty()) {
-                // Fehlerhafte Antwort mit der richtigen Struktur
                 Map<Long, Map<String, Object>> errorMap = new HashMap<>();
                 Map<String, Object> errorData = new HashMap<>();
                 errorData.put("error", "NO_VEHICLES_FOUND");
                 errorData.put("message", "Keine Fahrzeuge gefunden.");
-                errorMap.put(0L, errorData);  // 0L als Dummy-Id für den Fehler
+                errorMap.put(0L, errorData);
                 response.setVehicles(errorMap);
-                return ResponseEntity.status(404).body(response);  // 404 Not Found
+                return ResponseEntity.status(404).body(response);
             }
 
-            // Erfolgreiche Antwort mit Fahrzeugen
             Map<Long, Map<String, Object>> vehicleMap = new HashMap<>();
             for (Vehicle vehicle : vehicles) {
                 Map<String, Object> vehicleData = new HashMap<>();
@@ -70,17 +71,16 @@ public class ThirdPartyController {
             }
             response.setVehicles(vehicleMap);
 
-            return ResponseEntity.ok(response);  // Erfolgreiche Antwort
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            // Allgemeiner Fehler, auch hier die korrekte Struktur für den Fehler verwenden
             Map<Long, Map<String, Object>> errorMap = new HashMap<>();
             Map<String, Object> errorData = new HashMap<>();
             errorData.put("error", "INTERNAL_SERVER_ERROR");
             errorData.put("message", "Ein unerwarteter Fehler ist aufgetreten.");
-            errorMap.put(0L, errorData);  // Dummy-Id für Fehler
+            errorMap.put(0L, errorData);
             response.setVehicles(errorMap);
-            return ResponseEntity.status(500).body(response);  // 500 Internal Server Error
+            return ResponseEntity.status(500).body(response);
         }
     }
 
@@ -129,7 +129,7 @@ public class ThirdPartyController {
                             content = @Content(
                                     mediaType = "application/json",
                                     examples = {
-                                            @ExampleObject(name = "Beispiel 2", value = "{\"vehicleTypeId\": 14, \"postcode\": \"67890\", \"annoKilometers\": 5000}")
+                                            @ExampleObject(name = "Beispiel", value = "{\"vehicleTypeId\": 14, \"postcode\": \"67890\", \"annoKilometers\": 5000}")
                                     },
                                     schema = @Schema(implementation = PremiumResponse.class)
                             )
@@ -137,47 +137,40 @@ public class ThirdPartyController {
             }
     )
     @PostMapping("/api/calculate")
-    public ResponseEntity<?> calculatePremium(@org.springframework.web.bind.annotation.RequestBody Map<String, Object> premiumRequest) {
+    public ResponseEntity<?> calculatePremium(@org.springframework.web.bind.annotation.
+            RequestBody Map<String, Object> premiumRequest) {
 
         List<String> errorMessages = new ArrayList<>();
         PremiumResponse response = new PremiumResponse();
 
         try {
-            // Eingabewerte extrahieren
             Number vehicleIdNumber = (Number) premiumRequest.get("vehicleId");
             Long vehicleId = vehicleIdNumber != null ? vehicleIdNumber.longValue() : null;
             Integer annoKilometers = (Integer) premiumRequest.get("annoKilometers");
             String postcode = (String) premiumRequest.get("postcode");
 
-            // Eingaben validieren
             if (vehicleId == null) errorMessages.add("vehicleId muss angegeben werden.");
             if (annoKilometers == null) errorMessages.add("annoKilometers muss angegeben werden.");
             if (postcode == null) errorMessages.add("postcode muss angegeben werden.");
 
-            // Fahrzeug prüfen
             if (vehicleId != null && vehicleRepository.findById(vehicleId).isEmpty()) {
                 errorMessages.add("Kein Fahrzeug mit der angegebenen ID gefunden.");
             }
 
-            // Postleitzahl prüfen
             if (postcode != null && postcodeRepository.findFirstByPostcodeValue(postcode).isEmpty()) {
                 errorMessages.add("Kein Postleitzahl-Eintrag für den angegebenen Wert gefunden.");
             }
 
-            // Kilometer validieren
             if (annoKilometers != null && annoKilometers <= 0) {
                 errorMessages.add("Kilometerzahl muss größer als 0 sein.");
             }
 
-            // Falls Fehler vorhanden sind, gib alle zurück
             if (!errorMessages.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ErrorResponse("Fehlerhafte Eingabewerte", String.join(", ", errorMessages)));
             }
 
-            // Prämie berechnen
             double premiumAmount = calculateService.calculatePremium(annoKilometers, annoKilometers, vehicleId, postcode);
 
-            // Antwort erstellen
             Map<String, Object> premium = new HashMap<>();
             premium.put("premium", premiumAmount);
             response.setPremium(premium);

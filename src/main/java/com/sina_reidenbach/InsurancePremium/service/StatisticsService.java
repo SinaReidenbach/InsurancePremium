@@ -17,15 +17,14 @@ public class StatisticsService {
     private static final Logger logger = LoggerFactory.getLogger(StatisticsService.class);
 
     public void saveStatistics(LocalDateTime dateTime, String postcode, String vehicleName, int km, double premium, String ipAddress) {
-        // Überprüfen, ob der Eintrag bereits existiert
         Optional<Statistics> existingEntry = statisticsRepository.findByDateTimeAndPostcodeAndVehicle(dateTime, postcode, vehicleName);
 
         if (existingEntry.isPresent()) {
             logger.info("Duplicate entry found for vehicle: {}, postcode: {}, dateTime: {}", vehicleName, postcode, dateTime);
-            return; // Verhindert das Speichern von Duplikaten
+            return;
         }
 
-        // Neuer Eintrag erstellen und speichern
+
         Statistics entity = new Statistics(dateTime, postcode, vehicleName, km, premium, ipAddress);
         statisticsRepository.save(entity);
 

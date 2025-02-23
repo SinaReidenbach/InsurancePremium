@@ -34,7 +34,7 @@ class VehicleRepositoryTest {
     @Test
     void testFindByVehicleNameNotFound() {
         Vehicle result = vehicleRepository.findByName("Limousine");
-        assertNull(result);  // Test für nicht vorhandenes Fahrzeug
+        assertNull(result);
     }
 
     @Test
@@ -52,7 +52,7 @@ class VehicleRepositoryTest {
     @Test
     void testFindByIdNotFound() {
         Optional<Vehicle> vehicle = vehicleRepository.findById(999L);
-        assertFalse(vehicle.isPresent());  // Test für nicht vorhandene ID
+        assertFalse(vehicle.isPresent());
     }
 
 }
